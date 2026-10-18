@@ -3,13 +3,11 @@ package com.shengid.rednote.web;
 import static com.shengid.rednote.web.PageController.viewer;
 
 import java.util.*;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@Profile("preview")
 public class ActionController {
   final RednoteApplicationPort app;
 
@@ -19,7 +17,9 @@ public class ActionController {
 
   record Like(@jakarta.validation.constraints.NotNull Boolean liked) {}
 
-  record Comment(String text, Long target) {}
+  record Comment(
+      @com.shengid.rednote.validation.CodePointLength(min = 1, max = 500) String text,
+      @jakarta.validation.constraints.Positive Long target) {}
 
   record Status(String status) {}
 
@@ -31,7 +31,8 @@ public class ActionController {
   }
 
   @PostMapping("/actions/notes/{id}/comments")
-  Object comment(@PathVariable long id, @RequestBody Comment f, Authentication a) {
+  Object comment(
+      @PathVariable long id, @jakarta.validation.Valid @RequestBody Comment f, Authentication a) {
     return app.comment(viewer(a), id, f.text(), f.target());
   }
 
@@ -57,7 +58,13 @@ public class ActionController {
     return app.status(viewer(a), id, f.status());
   }
 
-  @GetMapping("/preview/files/{key}")
+  @DeleteMapping("/actions/files/{id}")
+  Object deleteFile(@PathVariable long id, Authentication a) {
+    app.deleteFile(viewer(a), id);
+    return Map.of("success", true);
+  }
+
+  @GetMapping("/files/{key}")
   Object file(@PathVariable String key, Authentication a) {
     var file = app.file(key, viewer(a));
     return org.springframework.http.ResponseEntity.ok()

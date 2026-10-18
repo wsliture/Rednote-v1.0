@@ -3,7 +3,8 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const { chromium } = require("playwright");
-const base = process.env.REDNOTE_URL || "http://localhost:8086";
+const base = process.env.REDNOTE_URL || "http://localhost:8085";
+const fixture = JSON.parse(fs.readFileSync("target/browser-fixture.json", "utf8"));
 let browser;
 let cleanup;
 (async () => {
@@ -19,8 +20,8 @@ let cleanup;
     errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(base + "/login");
-  await page.locator("#username").fill("linxia");
-  await page.locator("#password").fill("Preview123");
+  await page.locator("#username").fill(fixture.username);
+  await page.locator("#password").fill(fixture.password);
   await Promise.all([
     page.waitForURL(base + "/"),
     page.locator("[data-auth] .primary").click(),
@@ -37,7 +38,7 @@ let cleanup;
         mimeType: "image/jpeg",
         buffer: fs.readFileSync(
           path.resolve(
-            "docs/prototype/images/photo-1449247709967-d4461a6a6103.jpg",
+            "src/main/resources/static/images/photo-1449247709967-d4461a6a6103.jpg",
           ),
         ),
       },

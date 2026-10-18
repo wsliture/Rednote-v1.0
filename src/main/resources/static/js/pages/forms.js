@@ -88,14 +88,23 @@ export function initForms() {
     });
   }
   const avatar = document.querySelector("#avatar-file");
+  const avatarTrigger = document.querySelector("[data-avatar-trigger]");
+  if (avatarTrigger) avatarTrigger.onclick = () => avatar.click();
   let avatarEpoch = 0;
   if (avatar)
     avatar.onchange = async () => {
       if (!avatar.files.length) return;
       const epoch = ++avatarEpoch;
       const form = avatar.form,
-        button = form.querySelector("button");
+        button = form.querySelector("[data-profile-save]"),
+        status = form.querySelector("[data-avatar-status]"),
+        triggerText = form.querySelector("[data-avatar-button-text]");
       button.disabled = true;
+      avatarTrigger.disabled = true;
+      avatarTrigger.setAttribute("aria-busy", "true");
+      triggerText.textContent = "上传中…";
+      status.textContent = "正在上传，请稍候";
+      status.removeAttribute("data-error");
       form.dataset.uploadPending = "true";
       try {
         const body = new FormData();
@@ -104,12 +113,21 @@ export function initForms() {
         if (epoch !== avatarEpoch) return;
         form.elements.avatar.value = file.id;
         form.querySelector("[data-avatar-preview]").src = url(file.url);
+        status.textContent = "头像已上传，保存资料后生效";
+        form.querySelector("[data-form-error]").textContent = "";
       } catch (e) {
-        if (epoch === avatarEpoch) error(form, e);
+        if (epoch === avatarEpoch) {
+          status.textContent = e.message;
+          status.dataset.error = "true";
+          error(form, e);
+        }
       } finally {
         if (epoch === avatarEpoch) {
           form.dataset.uploadPending = "false";
           button.disabled = false;
+          avatarTrigger.disabled = false;
+          avatarTrigger.removeAttribute("aria-busy");
+          triggerText.textContent = "更换头像";
           avatar.value = "";
         }
       }

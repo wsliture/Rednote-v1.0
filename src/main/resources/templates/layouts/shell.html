@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title th:text="${title} + ' · Rednote'">Rednote</title>
+    <th:block th:fragment="favicon">
+      <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico(v=1)}" />
+      <link rel="icon" type="image/png" sizes="32x32" th:href="@{/images/favicon-32.png(v=1)}" />
+      <link rel="apple-touch-icon" sizes="180x180" th:href="@{/images/apple-touch-icon.png(v=1)}" />
+    </th:block>
     <meta name="csrf-token" th:content="${_csrf.token}" />
     <meta name="csrf-header" th:content="${_csrf.headerName}" />
     <meta name="context-path" th:content="@{/}" />

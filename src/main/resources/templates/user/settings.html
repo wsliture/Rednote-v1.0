@@ -7,7 +7,7 @@
       <main class="main">
         <header th:replace="~{layouts/shell :: topbar(false)}"></header>
         <div class="content">
-          <div class="reading">
+          <div class="reading settings-page">
             <a class="back" th:href="@{/users/{id}(id=${me.id})}"
               >← 返回我的主页</a
             >
@@ -39,38 +39,43 @@
                 th:action="@{/settings/profile}"
                 data-profile
               >
-                <div class="formfield">
-                  <label for="avatar-file">头像</label
-                  ><img
-                    data-avatar-preview
-                    th:src="${#strings.isEmpty(me.avatar)} ? @{/images/photo-1441974231531-c6227db76b6e.jpg} : @{${me.avatar}}"
-                    alt="头像预览"
-                    class="avatar lg"
-                  /><input
-                    id="avatar-file"
-                    type="file"
-                    name="file"
-                    accept="image/jpeg,image/png,image/webp"
-                  /><input
-                    type="hidden"
-                    name="avatar"
-                    th:value="${form['avatar']}"
-                  />
+                <div class="settings-avatar-row">
+                  <div class="settings-avatar-frame">
+                    <img data-avatar-preview
+                      th:src="${#strings.isEmpty(me.avatar)} ? @{/images/avatar-default.svg} : @{${me.avatar}}"
+                      alt="当前头像" />
+                    <span class="settings-avatar-badge" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 6l1.5-2h5L16 6h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/><circle cx="12" cy="12" r="4"/></svg>
+                    </span>
+                  </div>
+                  <div class="settings-avatar-copy">
+                    <h2>个人头像</h2>
+                    <p>用一张喜欢的照片，介绍独一无二的你。</p>
+                    <button type="button" class="btn settings-avatar-button" data-avatar-trigger aria-describedby="avatar-hint">
+                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 16V4m-4 4l4-4 4 4M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg>
+                      <span data-avatar-button-text>更换头像</span>
+                    </button>
+                    <input id="avatar-file" class="visually-hidden" tabindex="-1" type="file" name="file" accept="image/jpeg,image/png,image/webp" aria-label="选择新头像" />
+                    <input type="hidden" name="avatar" th:value="${form['avatar']}" />
+                    <p id="avatar-hint" class="settings-avatar-hint">支持 JPG、PNG、WebP，最大 10 MB</p>
+                    <p class="settings-avatar-status" data-avatar-status role="status" aria-live="polite"></p>
+                  </div>
                 </div>
-                <div class="formfield">
-                  <label for="readonly-username">用户名</label
-                  ><input
-                    id="readonly-username"
-                    th:value="${me.username}"
-                    readonly
-                  />
+                <div class="settings-fields">
+                  <div class="formfield">
+                    <label for="readonly-username">用户名</label>
+                    <input id="readonly-username" th:value="${me.username}"
+                      readonly aria-describedby="username-hint" />
+                    <p class="settings-field-hint" id="username-hint">账号名称暂不支持修改</p>
+                  </div>
+                  <div class="formfield">
+                    <label for="name">昵称</label>
+                    <input id="name" name="name" th:value="${form['name']}"
+                      placeholder="怎么称呼你？" autocomplete="nickname" />
+                    <p th:replace="~{fragments/components :: error('name')}"></p>
+                  </div>
                 </div>
-                <div class="formfield">
-                  <label for="name">昵称</label
-                  ><input id="name" name="name" th:value="${form['name']}" />
-                  <p th:replace="~{fragments/components :: error('name')}"></p>
-                </div>
-                <div class="formfield">
+                <div class="formfield settings-bio">
                   <label for="bio"
                     >简介
                     <span data-counter-for="bio" data-max="200"></span></label
@@ -78,11 +83,15 @@
                     id="bio"
                     name="bio"
                     rows="4"
+                    placeholder="分享你的兴趣、日常，或者一句喜欢的话…"
                     th:text="${form['bio']}"
                   ></textarea>
                   <p th:replace="~{fragments/components :: error('bio')}"></p>
                 </div>
-                <button class="btn primary">保存资料</button>
+                <div class="settings-form-actions">
+                  <span>让每一次相遇，都更了解你。</span>
+                  <button type="submit" class="btn primary" data-profile-save>保存资料</button>
+                </div>
                 <p class="error" data-form-error th:text="${message}"></p>
               </form>
             </section>
@@ -138,7 +147,7 @@
               method="post"
               th:action="@{/logout}"
               data-logout
-              style="margin-top: 24px; text-align: right"
+              class="settings-logout"
             >
               <button class="btn">退出登录</button>
             </form>

@@ -1,34 +1,17 @@
-# Thymeleaf 前端接入与预览
+# Thymeleaf 前端接入
 
 本次交付覆盖用户端 9 页、后台 2 页。页面首屏由 Thymeleaf 渲染，Bootstrap 5.3.8、原生 ES modules 与图片全部由应用本地提供，无 Node 构建或 CDN 运行依赖。原型保留在 `docs/prototype/`。
 
 ## 启动与账号
 
-要求 JDK 17、Maven。macOS 可先执行 `export JAVA_HOME=$(/usr/libexec/java_home -v 17)`，其他平台设置本机 JDK 17 路径。
+页面已接入真实 MySQL 与本地持久化文件服务。使用 Java 17、MySQL 8.4，配置和启动步骤见 [后端运行说明](backend.md)。
 
 ```sh
-mvn spring-boot:run -Dspring-boot.run.profiles=preview
+# 先启动本机 MySQL 8:3306 并创建 rednote_v1
+scripts/dev.sh
 ```
 
-访问 [首页](http://localhost:8080/)。也可打包后启动：
-
-```sh
-mvn clean package
-java -jar target/rednote-1.0.0-SNAPSHOT.jar --spring.profiles.active=preview
-```
-
-预览账号仅在 `preview` 中初始化，统一密码 `Preview123`：
-
-| 用户名        | 身份                        |
-| ------------- | --------------------------- |
-| linxia        | 普通用户，初始笔记 1 的作者 |
-| mumu / yuchen | 其他普通用户                |
-| admin         | 管理员                      |
-| xiaoyu        | 禁用账号，不能登录          |
-
-内存预览支持注册、登录、上传发布、编辑删除、点赞、两层评论、资料与密码修改、后台筛选及账号状态变更。重启后全部重置。图片写入操作系统独立临时目录，正常关闭时删除；异常退出后可能残留临时目录。预置图片是公开静态素材，新上传图片未被内容引用时只有上传者可预览。
-
-`preview` 单独排除数据库自动配置，不要求 MySQL；默认配置不启用模拟业务。预览 Controller、安全配置及内存适配器均受 profile 控制，不能将此 profile 用于生产部署。
+数据库密码通过环境变量或被 Git 忽略的本地 `.env` 注入。无预置演示账号；普通用户通过注册创建，管理员通过显式初始化创建。重启保留数据库和上传文件，所有 Session 失效。
 
 ## 页面与模块
 
@@ -91,24 +74,25 @@ java -jar target/rednote-1.0.0-SNAPSHOT.jar --spring.profiles.active=preview
 | DELETE `/actions/notes/{id}`           | 无                               | `{success: true}`                     |
 | POST `/actions/files`                  | multipart 单文件字段 `file`      | `{id, url}`，逐张上传                 |
 | PUT `/actions/admin/users/{id}/status` | `{status: "正常" 或 "禁用"}`     | 后台 `User` DTO                       |
-| GET `/preview/files/{key}`             | 预览上传图片标识                 | 图片流、实际 MIME、no-store、nosniff  |
+| GET `/files/{id}`                      | 数据库图片 ID                   | 受控图片流、实际 MIME、no-store、nosniff |
+| DELETE `/actions/files/{id}`           | 无                              | `{success: true}`，仅本人无引用文件 |
 
 错误结构为 `{code, message, fields?}`。400 输入错误、401 认证失效、403 权限或 CSRF、404 内容不可用、409 状态/编辑版本冲突、413 文件超限、415 图片类型/解码失败。未预期服务错误由 Spring 返回 500，客户端展示失败，不假报成功。未来真实业务按架构补齐请求追踪 ID。
 
 图片支持 JPEG、PNG、WebP，10 MiB 单文件、11 MiB multipart 请求上限。使用 ImageIO 与 TwelveMonkeys WebP SPI 检查可解码性。缩略图只保存服务端返回的图片 ID，blob URL 只用于上传过程预览。上传失败逐张重试，上传中或失败项未移除时不能提交。
 
-## 接入真实后端
+## 后端接入约定
 
-1. 为 `RednoteApplicationPort` 提供真实 Service 适配器，沿用 `Views`、`Forms`、路径和响应契约；Controller 不查询 Repository，不向模板传 Entity。
-2. 替换 `PreviewSecurity`，使用 `SessionUser` 的 ID、角色、认证版本；登录后擦除密码摘要，生产适配器继续负责账号状态与跨会话版本检查。
-3. 将 Controller 的 preview profile 限制调整为生产功能配置，同时提供真实适配器。不要直接打开预览存储。文件读取需替换预览地址，并由受控服务提供。
-4. 按 PRD 实现 MySQL 事务、行锁/唯一约束、图片引用与 24 小时回收、安全解码资源预算、持久化和备份；内存 synchronized 仅用于演示一致性。
-5. 继续完成架构规定的真实 MySQL、安全并发、性能和恢复验收。本次测试不能代替这些验收。
+`DatabaseApplication` 实现 `RednoteApplicationPort`，委派给独立业务 Service；Controller 不操作 Repository，不向模板传递 Entity。图片标识为数据库 ID 的十进制字符串，禁止提交任意路径或外部 URL。
+
+图片支持 JPEG、PNG、WebP，单张最多 10 MiB、4000 万像素。无引用图片仅上传者可读取，公开头像或有效笔记引用的图片允许游客读取；所有图片响应禁止缓存。上传根目录不映射为静态资源。
+
+公开主页使用 `PublicUser`，不含角色、状态或认证字段；后台使用管理展示 DTO。认证失效、CSRF、归属、版本冲突由服务端检查。JSON 错误包含 `code`、`message`、`fields`、`requestId`，响应头提供 `X-Request-ID`。
 
 ## 验证
 
 ```sh
-mvn test
+scripts/test.sh
 ```
 
 自动集成测试启动真实嵌入式 HTTP 服务，验证模板渲染、角色访问、CSRF、游标、转义、字段失败回显、点赞幂等及禁用后的旧会话失效。
@@ -122,9 +106,9 @@ REDNOTE_BROWSER_PATH="/path/to/chromium" \
 node tests/browser/smoke.cjs
 ```
 
-可设置 `REDNOTE_SCREENSHOTS` 为已存在目录，保存截图。脚本覆盖 11 页 × 1440/768/375px、分页、上传发布编辑删除、评论回复、登录返回、资料、注册改密与后台操作，并检查页面溢出、脚本错误和外部请求。
+脚本会在独立验收库注册随机账号、上传真实图片并发布 44 篇笔记，验证分页、JPEG/PNG/WebP、编辑删除、评论回复、资料及 1440/375px 布局。通过环境注入管理员凭据时同时验证后台。仅对隔离验收库运行。
 
-实际执行环境与结果见 [frontend-verification.md](frontend-verification.md)。
+当前真实后端执行结果见 [backend-verification.md](backend-verification.md)；此前页面验收记录保留在 [frontend-verification.md](frontend-verification.md)。
 
 ### 评论分页与布局回归
 

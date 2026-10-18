@@ -77,10 +77,17 @@ select {
 [hidden] {
   display: none !important;
 }
-.bodytext,
-.comment-content p {
+.bodytext {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+/* Preserve user-entered line breaks, not indentation from the HTML template. */
+.comment-content p {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.comment-text {
+  white-space: pre-wrap;
 }
 .comment {
   display: flex;
@@ -92,7 +99,7 @@ select {
   flex: 1;
 }
 .reply-group {
-  margin: 12px 0 0 20px;
+  margin: 12px 0 0;
   padding-left: 13px;
   border-left: 2px solid #f1f1f1;
 }
@@ -450,6 +457,50 @@ h3 {
   min-width: 0;
 }
 
+/* Align author, body and metadata to a single text column beside the avatar. */
+.detail .comment {
+  align-items: flex-start;
+  gap: 12px;
+}
+.detail .comment > .avatar {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+}
+.detail .comment-content {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.detail .comment-author {
+  display: block;
+  width: fit-content;
+  font-size: 12px;
+  line-height: 20px;
+}
+.detail .comment-body {
+  margin: 5px 0 8px;
+  line-height: 1.75;
+}
+.detail .comment-reply-name {
+  color: #999;
+}
+.detail .comment-tools {
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.detail .comment-tools button {
+  padding: 0;
+  line-height: inherit;
+}
+.detail .comment-tools button:hover {
+  color: var(--red);
+}
+.detail .comment-tools time {
+  white-space: nowrap;
+}
+
 /* The comment container owns the single empty state; batches contain only items. */
 .detail .comments {
   margin-top: 16px;
@@ -546,5 +597,204 @@ h3 {
   .auth .auth-form h1 {
     line-height: 1.4;
     padding-top: 2px;
+  }
+}
+
+/* Personal settings: a compact portrait editor and calm, aligned form fields. */
+.settings-page {
+  max-width: 760px;
+}
+.settings-page .pagehead {
+  margin-bottom: 28px;
+}
+.settings-page .formpanel {
+  padding: 32px;
+  border: 1px solid #eaeaea;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgb(37 37 37 / 3%);
+}
+.settings-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding-bottom: 28px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+}
+.settings-avatar-frame {
+  position: relative;
+  flex: 0 0 96px;
+  width: 96px;
+  height: 96px;
+}
+.settings-avatar-frame > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  box-shadow: 0 0 0 1px #eee;
+  background: var(--soft);
+}
+.settings-avatar-badge {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #fff0f3;
+  color: var(--red);
+}
+.settings-avatar-badge svg {
+  width: 15px;
+  height: 15px;
+}
+.settings-avatar-copy {
+  min-width: 0;
+}
+.settings-avatar-copy h2 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.settings-avatar-copy > p {
+  margin: 0 0 12px;
+  color: #929292;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.settings-page .settings-avatar-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 8px 15px;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  transition: border-color .18s, background .18s;
+}
+.settings-avatar-button:hover {
+  border-color: #ffc4ce;
+  background: #fff6f8;
+}
+.settings-avatar-button svg {
+  width: 15px;
+  height: 15px;
+}
+.settings-avatar-copy > .settings-avatar-hint {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: #aaa;
+}
+.settings-avatar-copy > .settings-avatar-status {
+  margin: 8px 0 0;
+  color: #548368;
+}
+.settings-avatar-status[data-error="true"] {
+  color: var(--red);
+}
+.settings-avatar-status:empty {
+  display: none;
+}
+.settings-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.settings-page .formfield {
+  min-width: 0;
+  margin-bottom: 24px;
+}
+.settings-page .formfield label {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+.settings-page input:not([type="file"]):not([type="hidden"]),
+.settings-page textarea {
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+.settings-page input[readonly] {
+  background: #f7f7f8;
+  border-color: #f0f0f0;
+  color: #999;
+}
+.settings-page input::placeholder,
+.settings-page textarea::placeholder {
+  color: #b4b4b4;
+}
+.settings-page .settings-field-hint {
+  margin: 8px 0 0;
+  color: #aaa;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.settings-bio [data-counter-for] {
+  color: #aaa;
+  font-size: 11px;
+  font-weight: 400;
+}
+.settings-page .error:empty {
+  display: none;
+}
+.settings-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.settings-form-actions > span {
+  color: #aaa;
+  font-size: 12px;
+}
+.settings-form-actions .primary {
+  min-width: 112px;
+}
+.settings-logout {
+  margin-top: 20px;
+  text-align: right;
+}
+.settings-logout .btn {
+  color: #999;
+  font-size: 12px;
+}
+@media (max-width: 600px) {
+  .settings-page .formpanel {
+    padding: 24px 20px;
+    border-radius: 16px;
+  }
+  .settings-avatar-row {
+    align-items: flex-start;
+    gap: 16px;
+    padding-bottom: 24px;
+    margin-bottom: 24px;
+  }
+  .settings-avatar-frame {
+    flex-basis: 72px;
+    width: 72px;
+    height: 72px;
+  }
+  .settings-fields {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .settings-form-actions {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .settings-form-actions .primary {
+    width: 100%;
   }
 }

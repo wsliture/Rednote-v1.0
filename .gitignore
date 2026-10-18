@@ -31,3 +31,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+.env
+.env.*
+!.env.example
+.playwright/
+
+__pycache__/
+*.pyc
+
+.DS_Store

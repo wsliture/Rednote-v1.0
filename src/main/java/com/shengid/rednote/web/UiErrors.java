@@ -12,7 +12,7 @@ public class UiErrors {
   Object error(UiException e, HttpServletRequest r) {
     if (r.getRequestURI().contains("/actions/")
         || r.getRequestURI().contains("/fragments/")
-        || r.getRequestURI().contains("/preview/files/"))
+        || r.getRequestURI().contains("/files/"))
       return ResponseEntity.status(e.status)
           .body(new Views.Failure("UI_" + e.status, e.getMessage(), e.fields));
     ModelAndView view = new ModelAndView("error/unavailable");
@@ -21,14 +21,56 @@ public class UiErrors {
     return view;
   }
 
+  @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+  ResponseEntity<?> invalidFields(org.springframework.web.bind.MethodArgumentNotValidException e) {
+    Map<String, String> fields = new java.util.LinkedHashMap<>();
+    e.getBindingResult()
+        .getFieldErrors()
+        .forEach(f -> fields.putIfAbsent(f.getField(), f.getDefaultMessage()));
+    return ResponseEntity.badRequest().body(new Views.Failure("INVALID_REQUEST", "请检查输入", fields));
+  }
+
   @ExceptionHandler({
-    org.springframework.web.bind.MethodArgumentNotValidException.class,
     org.springframework.http.converter.HttpMessageNotReadableException.class,
     org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class
   })
   ResponseEntity<?> invalidRequest() {
     return ResponseEntity.badRequest()
         .body(new Views.Failure("INVALID_REQUEST", "请求参数不正确，请检查输入", Map.of()));
+  }
+
+  @ExceptionHandler({
+    org.springframework.dao.CannotAcquireLockException.class,
+    org.springframework.dao.OptimisticLockingFailureException.class
+  })
+  ResponseEntity<?> conflict() {
+    return ResponseEntity.status(409)
+        .body(new Views.Failure("CONFLICT", "数据发生冲突，请刷新后重试", Map.of()));
+  }
+
+  @ExceptionHandler({
+    org.springframework.web.servlet.resource.NoResourceFoundException.class,
+    org.springframework.web.servlet.NoHandlerFoundException.class
+  })
+  Object missing(Exception e, HttpServletRequest r) {
+    return error(new UiException(404, "内容不存在"), r);
+  }
+
+  @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+  Object method(Exception e, HttpServletRequest r) {
+    return error(new UiException(405, "请求方法不支持"), r);
+  }
+
+  @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
+  Object missingParameter(Exception e, HttpServletRequest r) {
+    return error(new UiException(400, "请求参数不完整"), r);
+  }
+
+  @ExceptionHandler(Exception.class)
+  Object unexpected(Exception e, HttpServletRequest r) {
+    org.slf4j.LoggerFactory.getLogger(getClass())
+        .error("request_failed id={}", r.getAttribute("requestId"), e);
+    return error(new UiException(500, "服务暂时不可用，请稍后重试"), r);
   }
 
   @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)

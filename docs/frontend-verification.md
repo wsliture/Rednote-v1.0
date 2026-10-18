@@ -1,3 +1,5 @@
+> 本文保留此前页面/预览阶段验收记录；当前真实数据库后端的验证结果见 [backend-verification.md](backend-verification.md)。
+
 # 前端迁移验证记录
 
 日期：2026-10-18（北京时间）。交付范围为 Thymeleaf 前端与隔离内存预览。

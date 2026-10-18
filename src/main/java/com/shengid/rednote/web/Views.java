@@ -18,6 +18,8 @@ public final class Views {
       String date,
       long noteCount) {}
 
+  public record PublicUser(long id, String name, String bio, String avatar, long noteCount) {}
+
   public record Author(long id, String name, String bio, String avatar) {}
 
   public record Note(
@@ -80,5 +82,10 @@ public final class Views {
     }
   }
 
-  public record Failure(String code, String message, java.util.Map<String, String> fields) {}
+  public record Failure(
+      String code, String message, java.util.Map<String, String> fields, String requestId) {
+    public Failure(String code, String message, java.util.Map<String, String> fields) {
+      this(code, message, fields, org.slf4j.MDC.get("requestId"));
+    }
+  }
 }

@@ -5,9 +5,11 @@ import static com.shengid.rednote.web.Views.*;
 import java.util.*;
 import org.springframework.web.multipart.MultipartFile;
 
-/** Replace the preview adapter with transactional application services for production. */
+/** Application boundary consumed by Thymeleaf controllers. */
 public interface RednoteApplicationPort {
   User user(long id);
+
+  PublicUser publicUser(long id);
 
   Batch feed(String query, String cursor, Long viewer);
 
@@ -38,6 +40,8 @@ public interface RednoteApplicationPort {
   Upload upload(Long viewer, MultipartFile file);
 
   ImageFile file(String key, Long viewer);
+
+  void deleteFile(Long viewer, long id);
 
   Page<User> users(String username, String name, String status, int page);
 

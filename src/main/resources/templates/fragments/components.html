@@ -106,21 +106,22 @@
         ></span>
         <div class="comment-content">
           <a
-            class="muted"
+            class="comment-author muted"
             th:href="@{/users/{id}(id=${comment.author.id})}"
             th:text="${comment.author.name}"
           ></a>
-          <p>
+          <p class="comment-body">
             <span
+              class="comment-reply-name"
               th:if="${!#strings.isEmpty(comment.replyName)}"
               th:text="'回复 '+${comment.replyName}+'：'"
             ></span
             ><span
+              class="comment-text"
               th:text="${comment.text}"
-              style="white-space: pre-wrap"
             ></span>
           </p>
-          <div class="row muted">
+          <div class="row muted comment-tools">
             <time th:text="${comment.date}"></time
             ><button
               th:attr="data-reply=${comment.id},data-name=${comment.author.name}"

@@ -30,7 +30,16 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
-        <!-- ImageIO SPI for actual WebP decoding in the isolated preview uploader. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+        </dependency>
+
+        <!-- ImageIO SPI for validated WebP uploads. -->
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-webp</artifactId>

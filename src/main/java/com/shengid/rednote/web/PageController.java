@@ -5,7 +5,6 @@ import static com.shengid.rednote.web.Views.*;
 import com.shengid.rednote.security.SessionUser;
 import jakarta.servlet.http.*;
 import java.util.*;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -13,7 +12,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@Profile("preview")
 public class PageController {
   final RednoteApplicationPort app;
 
@@ -80,7 +78,7 @@ public class PageController {
       @RequestParam(defaultValue = "0") int page,
       Model m,
       Authentication a) {
-    m.addAttribute("profile", app.user(id));
+    m.addAttribute("profile", app.publicUser(id));
     m.addAttribute("pagination", app.profile(id, page, viewer(a)));
     return "user/profile";
   }
@@ -145,8 +143,7 @@ public class PageController {
       m.addAttribute("note", n);
       m.addAttribute("imageIds", images);
       m.addAttribute(
-          "imageUrls",
-          images.stream().map(x -> x.startsWith("/") ? x : "/preview/files/" + x).toList());
+          "imageUrls", images.stream().map(x -> x.startsWith("/") ? x : "/files/" + x).toList());
       return "note/editor";
     }
   }

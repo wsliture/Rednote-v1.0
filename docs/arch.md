@@ -6,7 +6,7 @@
 | 需求基线 | [Rednote PRD](prd.md) |
 | 适用范围 | 课程 Web 项目，单体、单服务器、单应用实例 |
 | 文档状态 | 待实现架构；本文不代表相关功能已经实现 |
-| 交付边界 | 架构与开发约定，不包含完整建表 SQL、逐接口字段契约 |
+| 交付边界 | 架构与开发约定；当前实现及验证状态见 backend.md 和 backend-verification.md |
 
 ## 1. 架构目标与技术基线
 
@@ -30,18 +30,15 @@
 
 ### 1.2 当前工程与兼容性结论
 
-当前工程仅有应用入口、初始化测试与基础配置；`application.properties` 仅声明应用名称。POM 声明 Java 17、Spring Boot 4.0.8，包含 MVC、JPA、Security、Thymeleaf、Validation、Actuator 和 MySQL 驱动，没有业务实现、数据库迁移或图片存储配置。
+当前工程已经接入真实数据库与本地文件服务，preview 业务存储、安全配置和 profile 已移除。`DatabaseApplication` 适配现有页面接口，业务由独立 Service 处理，持久化使用 JPA Repository 和参数化查询。
 
-本机缓存的 Spring Boot 4.0.8 BOM 管理 Spring Security 7.0.7、Thymeleaf 3.1.5.RELEASE、`thymeleaf-extras-springsecurity6` 3.1.5.RELEASE。扩展名称中的 `6` 不能单独作为不兼容结论；也不能以 BOM 管理或已有依赖声明代替运行验证。
+实施使用 Java 17.0.14、Spring Boot 4.0.8、Spring Security 7.0.7、Hibernate 7.2.24.Final、Flyway 11.14.1、MySQL 8.4.8；已在独立 MySQL 执行 Flyway、JPA validate、HTTP 会话与 CSRF 测试。保留原技术基线，未升级或降级 Spring Boot。
 
-本轮尝试离线执行 Maven 依赖树，因本机缺少 dependency 插件及相关缓存而失败，未获得完整实际解析结果，也未验证模板安全方言可运行。本文保留当前依赖，不擅自升级或降级。开发开始前必须完成：
+页面以服务端显式 `me` 与权限展示字段控制按钮，实际权限仍由过滤器与 Service 校验。Thymeleaf 页面、匿名/用户/管理员访问均通过真实 HTTP 和浏览器验证；不以安全扩展 artifact 名称代替兼容性结论。
 
-1. 联网解析依赖树、检查有效 POM，确认版本冲突与实际 JDK 运行版本；`java.version=17` 只是项目目标版本。
-2. 使用 Java 17 构建并连接测试 MySQL 启动，验证 JPA、登录、CSRF 和 Thymeleaf 模板渲染。
-3. 验证安全方言对匿名、普通用户、管理员的渲染；若不兼容，首版使用服务端显式视图字段控制按钮显示，服务端授权保持不变，后续另行调整依赖并记录决策。
-4. 验证图片解码库对 WebP 的支持。JDK 默认解码器不能作为 WebP 支持保证，须补充经验证且兼容 Java 17 的 ImageIO 插件，覆盖损坏文件及资源消耗测试。
+WebP 使用 TwelveMonkeys ImageIO 3.12.0，浏览器实际生成的 WebP 已通过上传解码及发布流程。图片解码同时受 4000 万像素和两路并发预算限制。
 
-Spring Boot 4 的 Java 17 基线见[官方迁移说明](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)。安全扩展能力需结合[Thymeleaf 官方 API](https://www.thymeleaf.org/apidocs/thymeleaf-extras-springsecurity6/3.1.5.RELEASE/)及本项目实际测试判断，不据此声称当前组合已验证可用。
+后续构建和验收继续使用 Java 17，不能因本机默认 Java 24 而变更目标运行时。运行与验收记录见 [backend.md](backend.md)、[backend-verification.md](backend-verification.md)。
 
 ## 2. 总体架构与分层职责
 
@@ -225,6 +222,9 @@ erDiagram
 
 **用户 → 笔记 → 评论 → 文件元数据。**
 
+实施补充：回复插入会对 reply_to_user_id 触发外键用户锁，因此回复须在锁笔记前按 ID 升序锁定操作者及被回复用户。目标定位使用标量投影，取得笔记及评论锁后重新校验有效性；评论写事务采用 READ COMMITTED，避免旧快照与额外间隙锁。
+
+
 允许跳过不需要的层级，禁止取得文件锁后再回头申请笔记或用户锁。定时清理只锁文件，不申请上游业务锁。批量场景先确定资源集合后有序锁定；锁超时或死锁回滚并返回可识别冲突，不自动重放创建操作。
 
 ### 6.2 关键事务
@@ -252,7 +252,7 @@ erDiagram
 
 图片访问经 Controller → FileService → FileStorage，返回文件流。文件处于 READY 且被有效公开笔记或头像引用时，游客可访问；未引用图片仅上传者可预览；待删除或已删除文件不可读取。不得将整个上传目录直接映射成公开静态目录。
 
-文件内容校验包括实际类型、字节数和可解码性；先读取尺寸元数据评估资源消耗，解码置于有并发与内存预算限制的处理流程，禁止不受限地分配像素缓冲区。具体像素上限会影响 PRD 允许的图片范围，若实施确需增加，须先作为需求变更确认，本文不擅自新增图片尺寸产品限制。类型与解码均通过后保存；输出实际 MIME 与 `nosniff`，文件不作为 HTML 执行。首版图片访问统一使用 `Cache-Control: no-store`，避免权限撤回后缓存继续作为公开入口。
+文件内容校验包括实际类型、字节数和可解码性；先读取尺寸元数据评估资源消耗，解码置于有并发与内存预算限制的处理流程，禁止不受限地分配像素缓冲区。经 2026-10-18 需求确认，单张最多 4000 万像素，同时最多解码两张；超出像素限制返回明确错误，等待解码资源超过 10 秒返回可重试冲突。类型与解码均通过后保存；输出实际 MIME 与 `nosniff`，文件不作为 HTML 执行。首版图片访问统一使用 `Cache-Control: no-store`，避免权限撤回后缓存继续作为公开入口。
 
 ### 7.2 状态与上传流程
 

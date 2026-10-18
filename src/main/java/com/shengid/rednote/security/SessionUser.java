@@ -5,7 +5,7 @@ import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-/** Minimal session identity, shared by preview and future production authentication. */
+/** Minimal serializable session identity; credentials are erased after authentication. */
 public final class SessionUser implements UserDetails, CredentialsContainer {
   private final long id;
   private final long version;
