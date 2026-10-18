@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{layouts/shell :: head('数据看板')}"></head>
+  <body>
+    <div class="admin-shell">
+      <aside th:replace="~{layouts/shell :: sidebar(true)}"></aside>
+      <main class="main">
+        <header th:replace="~{layouts/shell :: topbar(true)}"></header>
+        <div class="content">
+          <section data-dashboard th:fragment="overview">
+            <div class="pagehead">
+              <div class="eyebrow">OVERVIEW</div>
+              <div class="row between wrap">
+                <div>
+                  <h1>每一份分享，都在这里生长</h1>
+                  <p class="muted">欢迎回来，查看 Rednote 的最新数据。</p>
+                </div>
+                <button class="btn" data-refresh>↻ 刷新数据</button>
+              </div>
+              <p
+                class="muted"
+                th:text="'统计时间：'+${dashboard.time}+'（北京时间）'"
+              ></p>
+            </div>
+            <div class="metrics">
+              <div
+                class="metric"
+                th:each="label,stat:${ {'注册用户总量','有效笔记总量','有效点赞总量','有效评论总量'} }"
+              >
+                <div class="row between">
+                  <span class="muted" th:text="${label}"></span
+                  ><span
+                    class="mark"
+                    th:text="${stat.index == 0 ? '♙' : (stat.index == 1 ? '▤' : (stat.index == 2 ? '♡' : '☏'))}"
+                  ></span>
+                </div>
+                <div
+                  class="value"
+                  th:text="${stat.index == 0 ? dashboard.users : (stat.index == 1 ? dashboard.notes : (stat.index == 2 ? dashboard.likes : dashboard.comments))}"
+                ></div>
+                <p
+                  th:text="${stat.index == 0 ? '包含禁用账号，不含管理员' : (stat.index == 1 ? '当前未删除的公开笔记' : (stat.index == 2 ? '未取消且关联有效笔记' : '包含主评论与回复'))}"
+                ></p>
+              </div>
+            </div>
+            <section class="panel">
+              <div class="row between wrap">
+                <div>
+                  <h2 style="font-size: 16px; margin-bottom: 8px">
+                    社区增长趋势
+                  </h2>
+                  <p class="muted">最近 7 天 · 北京时间 · 今天截至统计时间</p>
+                </div>
+                <div class="row muted">
+                  <span style="color: #ff2442">● 新增用户</span
+                  ><span style="color: #586dab">● 发布笔记</span>
+                </div>
+              </div>
+              <svg
+                class="chart"
+                viewBox="0 0 900 290"
+                role="img"
+                aria-label="最近七天新增用户与发布笔记趋势"
+              >
+                <g th:each="step:${#numbers.sequence(0,5)}">
+                  <line
+                    class="grid"
+                    x1="65"
+                    x2="845"
+                    th:y1="${235-step*40}"
+                    th:y2="${235-step*40}"
+                  ></line>
+                  <text
+                    x="30"
+                    th:y="${239-step*40}"
+                    th:text="${dashboard.peak()*step/5}"
+                  ></text>
+                </g>
+                <polyline
+                  th:attr="points=${dashboard.notePoints()}"
+                  fill="none"
+                  stroke="#586dab"
+                  stroke-width="3"
+                ></polyline>
+                <polyline
+                  th:attr="points=${dashboard.userPoints()}"
+                  fill="none"
+                  stroke="#ff2442"
+                  stroke-width="3"
+                ></polyline>
+                <g th:each="trend,s:${dashboard.trends}">
+                  <circle
+                    th:cx="${65+s.index*130}"
+                    th:cy="${235-trend.users*200/dashboard.peak()}"
+                    r="4"
+                    fill="#ff2442"
+                  >
+                    <title
+                      th:text="${trend.date}+' 新增用户 '+${trend.users}"
+                    ></title>
+                  </circle>
+                  <circle
+                    th:cx="${65+s.index*130}"
+                    th:cy="${235-trend.notes*200/dashboard.peak()}"
+                    r="4"
+                    fill="#586dab"
+                  >
+                    <title
+                      th:text="${trend.date}+' 发布笔记 '+${trend.notes}"
+                    ></title>
+                  </circle>
+                  <text
+                    th:x="${65+s.index*130}"
+                    y="270"
+                    text-anchor="middle"
+                    th:text="${#strings.substring(trend.date,5)}"
+                  ></text>
+                </g>
+              </svg>
+            </section>
+            <section class="panel">
+              <h3>统计口径说明</h3>
+              <p class="muted">
+                注册用户含禁用账号，不含管理员；有效笔记、点赞、评论不含已删除内容。评论含回复。新增与发布趋势保留历史事件，删除不会改写历史发布量；缺失日期补零。
+              </p>
+            </section>
+            <p class="error" data-dashboard-error role="status"></p>
+          </section>
+        </div>
+      </main>
+    </div>
+    <th:block th:replace="~{layouts/shell :: feedback}"></th:block>
+  </body>
+</html>

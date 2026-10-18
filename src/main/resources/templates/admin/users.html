@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{layouts/shell :: head('用户管理')}"></head>
+  <body>
+    <div class="admin-shell">
+      <aside th:replace="~{layouts/shell :: sidebar(true)}"></aside>
+      <main class="main">
+        <header th:replace="~{layouts/shell :: topbar(true)}"></header>
+        <div class="content">
+          <div class="pagehead">
+            <div class="eyebrow">COMMUNITY MEMBERS</div>
+            <h1>用户管理</h1>
+            <p class="muted">了解社区成员，管理账号状态。</p>
+          </div>
+          <section class="panel">
+            <form class="filters" method="get" th:action="@{/admin/users}">
+              <div>
+                <label for="fu">用户名</label
+                ><input
+                  id="fu"
+                  name="username"
+                  th:value="${filters.username}"
+                />
+              </div>
+              <div>
+                <label for="fn">昵称</label
+                ><input id="fn" name="name" th:value="${filters.name}" />
+              </div>
+              <div>
+                <label for="fs">账号状态</label
+                ><select id="fs" name="status" class="status-select">
+                  <option value="">全部</option>
+                  <option
+                    th:each="s:${ {'正常','禁用'} }"
+                    th:value="${s}"
+                    th:text="${s}"
+                    th:selected="${filters.status == s}"
+                  ></option>
+                </select>
+              </div>
+              <div class="row">
+                <button class="btn primary">查询</button
+                ><a class="btn" th:href="@{/admin/users}">重置</a>
+              </div>
+            </form>
+            <div class="tablewrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>用户 ID</th>
+                    <th>用户</th>
+                    <th>昵称</th>
+                    <th>角色</th>
+                    <th>状态</th>
+                    <th>注册时间</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="user:${pagination.items}">
+                    <td th:text="${user.id}"></td>
+                    <td>
+                      <span
+                        th:replace="~{fragments/components :: avatar(${user})}"
+                      ></span>
+                      <span th:text="${user.username}"></span>
+                    </td>
+                    <td th:text="${user.name}"></td>
+                    <td
+                      th:text="${user.role == 'ADMIN' ? '管理员' : '普通用户'}"
+                    ></td>
+                    <td>
+                      <span
+                        class="badge"
+                        th:classappend="${user.status == '正常' ? 'ok' : 'disabled'}"
+                        th:text="${user.status}"
+                      ></span>
+                    </td>
+                    <td th:text="${user.date}"></td>
+                    <td>
+                      <button
+                        class="muted"
+                        th:attr="data-user-detail=${user.id}"
+                      >
+                        查看
+                      </button>
+                      <button
+                        th:if="${user.role != 'ADMIN'}"
+                        class="danger"
+                        th:attr="data-user-status=${user.id},data-status=${user.status == '正常' ? '禁用' : '正常'},data-name=${user.name}"
+                        th:text="${user.status == '正常' ? '禁用' : '启用'}"
+                      ></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <th:block th:if="${#lists.isEmpty(pagination.items)}"
+              ><div
+                th:replace="~{fragments/components :: empty('没有匹配的用户','请尝试调整用户名、昵称或账号状态。')}"
+              ></div
+            ></th:block>
+            <nav
+              th:replace="~{fragments/components :: pagination(@{/admin/users(username=${filters.username},name=${filters.name},status=${filters.status})})}"
+            ></nav>
+          </section>
+        </div>
+      </main>
+    </div>
+    <th:block th:replace="~{layouts/shell :: feedback}"></th:block>
+  </body>
+</html>

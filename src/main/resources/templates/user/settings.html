@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{layouts/shell :: head('个人设置')}"></head>
+  <body>
+    <div>
+      <aside th:replace="~{layouts/shell :: sidebar(false)}"></aside>
+      <main class="main">
+        <header th:replace="~{layouts/shell :: topbar(false)}"></header>
+        <div class="content">
+          <div class="reading">
+            <a class="back" th:href="@{/users/{id}(id=${me.id})}"
+              >← 返回我的主页</a
+            >
+            <div class="pagehead">
+              <div class="eyebrow">MAKE YOURSELF AT HOME</div>
+              <h1>个人设置</h1>
+              <p class="muted">让大家更了解你一点。</p>
+            </div>
+            <div class="tabs">
+              <button
+                data-tab="profile"
+                th:classappend="${passwordTab == null} ? active"
+              >
+                编辑资料</button
+              ><button
+                data-tab="password"
+                th:classappend="${passwordTab != null} ? active"
+              >
+                修改密码
+              </button>
+            </div>
+            <section
+              data-tab-panel="profile"
+              th:hidden="${passwordTab != null}"
+            >
+              <form
+                class="formpanel"
+                method="post"
+                th:action="@{/settings/profile}"
+                data-profile
+              >
+                <div class="formfield">
+                  <label for="avatar-file">头像</label
+                  ><img
+                    data-avatar-preview
+                    th:src="${#strings.isEmpty(me.avatar)} ? @{/images/photo-1441974231531-c6227db76b6e.jpg} : @{${me.avatar}}"
+                    alt="头像预览"
+                    class="avatar lg"
+                  /><input
+                    id="avatar-file"
+                    type="file"
+                    name="file"
+                    accept="image/jpeg,image/png,image/webp"
+                  /><input
+                    type="hidden"
+                    name="avatar"
+                    th:value="${form['avatar']}"
+                  />
+                </div>
+                <div class="formfield">
+                  <label for="readonly-username">用户名</label
+                  ><input
+                    id="readonly-username"
+                    th:value="${me.username}"
+                    readonly
+                  />
+                </div>
+                <div class="formfield">
+                  <label for="name">昵称</label
+                  ><input id="name" name="name" th:value="${form['name']}" />
+                  <p th:replace="~{fragments/components :: error('name')}"></p>
+                </div>
+                <div class="formfield">
+                  <label for="bio"
+                    >简介
+                    <span data-counter-for="bio" data-max="200"></span></label
+                  ><textarea
+                    id="bio"
+                    name="bio"
+                    rows="4"
+                    th:text="${form['bio']}"
+                  ></textarea>
+                  <p th:replace="~{fragments/components :: error('bio')}"></p>
+                </div>
+                <button class="btn primary">保存资料</button>
+                <p class="error" data-form-error th:text="${message}"></p>
+              </form>
+            </section>
+            <section
+              data-tab-panel="password"
+              th:hidden="${passwordTab == null}"
+            >
+              <form
+                class="formpanel"
+                method="post"
+                th:action="@{/settings/password}"
+                data-password
+              >
+                <div class="notice">
+                  修改密码后，所有设备的登录状态将失效，请重新登录。
+                </div>
+                <div class="formfield">
+                  <label for="old">旧密码</label
+                  ><input
+                    type="password"
+                    name="old"
+                    id="old"
+                    autocomplete="current-password"
+                  />
+                  <p th:replace="~{fragments/components :: error('old')}"></p>
+                </div>
+                <div class="formfield">
+                  <label for="new-password">新密码</label
+                  ><input
+                    type="password"
+                    name="password"
+                    id="new-password"
+                    autocomplete="new-password"
+                  />
+                  <p
+                    th:replace="~{fragments/components :: error('password')}"
+                  ></p>
+                </div>
+                <div class="formfield">
+                  <label for="confirm">确认新密码</label
+                  ><input
+                    type="password"
+                    name="confirm"
+                    id="confirm"
+                    autocomplete="new-password"
+                  />
+                </div>
+                <button class="btn primary">确认修改密码</button>
+                <p class="error" data-form-error th:text="${message}"></p>
+              </form>
+            </section>
+            <form
+              method="post"
+              th:action="@{/logout}"
+              data-logout
+              style="margin-top: 24px; text-align: right"
+            >
+              <button class="btn">退出登录</button>
+            </form>
+          </div>
+        </div>
+      </main>
+      <nav th:replace="~{layouts/shell :: mobile}"></nav>
+    </div>
+    <th:block th:replace="~{layouts/shell :: feedback}"></th:block>
+  </body>
+</html>

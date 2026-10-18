@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>无权限 · Rednote</title>
+    <link rel="stylesheet" th:href="@{/css/rednote.css}" />
+  </head>
+  <body>
+    <main class="empty">
+      <div class="symbol">◌</div>
+      <h1>无权限访问</h1>
+      <p>后台包含管理数据，请使用管理员身份进入。</p>
+      <a class="btn" th:href="@{/}">返回首页</a
+      ><a class="btn" th:href="@{/login}">前往登录</a>
+    </main>
+  </body>
+</html>

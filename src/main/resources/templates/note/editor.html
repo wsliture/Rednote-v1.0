@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{layouts/shell :: head('记录生活')}"></head>
+  <body>
+    <div>
+      <aside th:replace="~{layouts/shell :: sidebar(false)}"></aside>
+      <main class="main">
+        <header th:replace="~{layouts/shell :: topbar(false)}"></header>
+        <div class="content">
+          <div class="reading">
+            <a
+              class="back"
+              th:href="${note == null} ? @{/} : @{/notes/{id}(id=${note.id})}"
+              th:text="${note == null ? '← 返回发现' : '← 返回笔记'}"
+            ></a>
+            <div class="pagehead">
+              <div class="eyebrow">CREATE SOMETHING LOVELY</div>
+              <h1
+                th:text="${note == null ? '记录此刻，分享热爱' : '编辑笔记'}"
+              ></h1>
+              <p class="muted">让每一个普通的日子，都有值得留下的瞬间。</p>
+            </div>
+            <form
+              class="formpanel"
+              data-editor
+              method="post"
+              th:action="${note == null} ? @{/notes} : @{/notes/{id}(id=${note.id})}"
+            >
+              <input
+                type="hidden"
+                name="version"
+                th:value="${form['version']}"
+              />
+              <div class="formfield">
+                <label for="images"
+                  >笔记图片
+                  <span class="muted" data-upload-count>0 / 9</span></label
+                >
+                <div class="upload-grid" data-upload-grid>
+                  <div
+                    class="upload-item"
+                    th:each="image,stat:${imageIds}"
+                    th:attr="data-upload-id=${image},data-upload-url=@{${imageUrls[stat.index]}}"
+                  >
+                    <img
+                      th:src="@{${imageUrls[stat.index]}}"
+                      th:alt="'笔记图片 '+${stat.index+1}"
+                    /><input type="hidden" name="images" th:value="${image}" />
+                  </div>
+                </div>
+                <input
+                  id="images"
+                  type="file"
+                  name="files"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  data-upload
+                  aria-label="上传笔记图片"
+                  style="display: none"
+                />
+                <div class="hint">
+                  首张图片为封面 · 单张不超过 10 MB · 使用箭头调整顺序
+                </div>
+                <p th:replace="~{fragments/components :: error('images')}"></p>
+              </div>
+              <div class="formfield">
+                <label for="title"
+                  >标题
+                  <span
+                    class="muted"
+                    data-counter-for="title"
+                    data-max="50"
+                  ></span></label
+                ><input
+                  id="title"
+                  name="title"
+                  th:value="${form['title']}"
+                  placeholder="给这份美好起个标题吧"
+                />
+                <p th:replace="~{fragments/components :: error('title')}"></p>
+              </div>
+              <div class="formfield editor-body-field">
+                <label for="body"
+                  >正文
+                  <span
+                    class="muted"
+                    data-counter-for="body"
+                    data-max="5000"
+                  ></span></label
+                ><textarea
+                  id="body"
+                  name="body"
+                  rows="9"
+                  th:text="${form['body']}"
+                  placeholder="分享你的体验、故事与小小心得…"
+                ></textarea>
+                <p th:replace="~{fragments/components :: error('body')}"></p>
+              </div>
+              <div class="row between wrap editor-actions">
+                <a
+                  class="btn"
+                  th:href="${note == null} ? @{/} : @{/notes/{id}(id=${note.id})}"
+                  >取消</a
+                >
+                <div class="row">
+                  <button class="btn" type="button" data-preview>预览</button
+                  ><button
+                    class="btn primary"
+                    th:text="${note == null ? '发布笔记' : '保存修改'}"
+                  ></button>
+                </div>
+              </div>
+              <p class="error" data-form-error th:text="${message}"></p>
+            </form>
+          </div>
+        </div>
+      </main>
+      <nav th:replace="~{layouts/shell :: mobile}"></nav>
+    </div>
+    <th:block th:replace="~{layouts/shell :: feedback}"></th:block>
+  </body>
+</html>

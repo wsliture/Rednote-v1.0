@@ -1,0 +1,172 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <span th:fragment="avatar(user)" class="avatar" style="background: #e8dace"
+      ><img
+        th:if="${!#strings.isEmpty(user.avatar)}"
+        th:src="@{${user.avatar}}"
+        th:alt="${user.name}"
+        style="
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 50%;
+        " /><th:block
+        th:if="${#strings.isEmpty(user.avatar)}"
+        th:text="${user.name.substring(0,user.name.offsetByCodePoints(0,1))}"
+      ></th:block
+    ></span>
+    <button
+      th:fragment="like(note)"
+      class="heart"
+      th:classappend="${note.liked} ? liked"
+      th:attr="data-like=${note.id},aria-pressed=${note.liked},aria-label=${note.liked ? '取消点赞' : '点赞'}"
+    >
+      <span data-heart th:text="${note.liked ? '♥' : '♡'}"></span>
+      <span data-count th:text="${note.likes}"></span>
+    </button>
+    <article
+      th:fragment="card(note)"
+      class="note-card"
+      th:attr="data-note-id=${note.id}"
+    >
+      <a th:href="@{/notes/{id}(id=${note.id})}"
+        ><div class="cover" th:style="'--h:'+${note.height}+'px'">
+          <img
+            loading="lazy"
+            th:src="@{${note.images[0]}}"
+            th:alt="${note.title}"
+            data-image
+          />
+        </div>
+        <h3 th:text="${note.title}"></h3
+      ></a>
+      <div class="cardmeta">
+        <a class="row" th:href="@{/users/{id}(id=${note.author.id})}"
+          ><span
+            th:replace="~{fragments/components :: avatar(${note.author})}"
+          ></span
+          ><span th:text="${note.author.name}"></span></a
+        ><button th:replace="~{fragments/components :: like(${note})}"></button>
+      </div>
+    </article>
+    <div
+      th:fragment="batch"
+      class="feed-batch"
+      th:attr="data-next=${batch.next},data-end=${batch.end}"
+    >
+      <th:block th:each="note:${batch.items}"
+        ><article
+          th:replace="~{fragments/components :: card(${note})}"
+        ></article
+      ></th:block>
+    </div>
+    <div th:fragment="empty(title,summary)" class="empty">
+      <div class="symbol">◌</div>
+      <h2 th:text="${title}"></h2>
+      <p th:text="${summary}"></p>
+      <a class="btn" th:href="@{/}">返回首页</a>
+    </div>
+    <p
+      th:fragment="error(field)"
+      class="error"
+      th:attr="data-error=${field},id=${'error-'+field}"
+      th:text="${fieldErrors.get(field)}"
+    ></p>
+    <nav th:fragment="pagination(base)" class="pagination" aria-label="分页">
+      <span
+        class="muted"
+        th:text="'共 '+${pagination.total}+' 条 · 每页 20 条'"
+      ></span
+      ><a
+        class="btn small"
+        th:if="${pagination.page > 0}"
+        th:href="${base + ( #strings.contains(base,'?') ? '&amp;' : '?' ) + 'page=' + (pagination.page - 1)}"
+        >上一页</a
+      ><span th:text="${pagination.page+1}+' / '+${pagination.pages}"></span
+      ><a
+        class="btn small"
+        th:if="${pagination.page+1 < pagination.pages}"
+        th:href="${base + ( #strings.contains(base,'?') ? '&amp;' : '?' ) + 'page=' + (pagination.page + 1)}"
+        >下一页</a
+      >
+    </nav>
+    <div
+      th:fragment="comments"
+      class="comment-batch"
+      th:attr="data-page=${page},data-root=${root},data-total=${commentPage.total},data-has-more=${commentPage.hasMore}"
+    >
+      <div
+        th:each="comment:${commentPage.items}"
+        class="comment"
+        th:attr="data-comment-id=${comment.id}"
+      >
+        <span
+          th:replace="~{fragments/components :: avatar(${comment.author})}"
+        ></span>
+        <div class="comment-content">
+          <a
+            class="muted"
+            th:href="@{/users/{id}(id=${comment.author.id})}"
+            th:text="${comment.author.name}"
+          ></a>
+          <p>
+            <span
+              th:if="${!#strings.isEmpty(comment.replyName)}"
+              th:text="'回复 '+${comment.replyName}+'：'"
+            ></span
+            ><span
+              th:text="${comment.text}"
+              style="white-space: pre-wrap"
+            ></span>
+          </p>
+          <div class="row muted">
+            <time th:text="${comment.date}"></time
+            ><button
+              th:attr="data-reply=${comment.id},data-name=${comment.author.name}"
+            >
+              回复</button
+            ><button
+              th:if="${comment.owner}"
+              th:attr="data-delete-comment=${comment.id},data-root-delete=${comment.rootId == 0}"
+            >
+              删除
+            </button>
+          </div>
+          <div th:if="${comment.rootId == 0}" class="reply-group">
+            <button
+              class="muted"
+              th:attr="data-load-replies=${comment.id},data-reply-page=0"
+            >
+              展开回复
+            </button>
+            <div th:id="'replies-'+${comment.id}"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <section th:fragment="userDetail" class="user-detail">
+      <h2>用户资料</h2>
+      <span th:replace="~{fragments/components :: avatar(${user})}"></span>
+      <dl>
+        <dt>用户 ID</dt>
+        <dd th:text="${user.id}"></dd>
+        <dt>用户名</dt>
+        <dd th:text="${user.username}"></dd>
+        <dt>昵称</dt>
+        <dd th:text="${user.name}"></dd>
+        <dt>简介</dt>
+        <dd th:text="${user.bio}"></dd>
+        <dt>角色</dt>
+        <dd th:text="${user.role == 'ADMIN' ? '管理员' : '普通用户'}"></dd>
+        <dt>状态</dt>
+        <dd th:text="${user.status}"></dd>
+        <dt>注册时间</dt>
+        <dd th:text="${user.date}"></dd>
+        <dt>有效笔记数</dt>
+        <dd th:text="${user.noteCount}"></dd>
+      </dl>
+      <p th:if="${user.role == 'ADMIN'}">管理员账号不支持禁用。</p>
+    </section>
+  </body>
+</html>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{layouts/shell :: head('发现生活的美好')}"></head>
+  <body>
+    <div>
+      <aside th:replace="~{layouts/shell :: sidebar(false)}"></aside>
+      <main class="main">
+        <header th:replace="~{layouts/shell :: topbar(false)}"></header>
+        <div class="content">
+          <section class="intro">
+            <div
+              class="eyebrow"
+              th:text="${#strings.isEmpty(q) ? 'EXPLORE THE EVERYDAY' : 'SEARCH RESULTS'}"
+            ></div>
+            <h1
+              th:text="${#strings.isEmpty(q) ? '发现生活的另一种可能' : '「'+q+'」的搜索结果'}"
+            ></h1>
+            <p
+              th:text="${#strings.isEmpty(q) ? '一些日常，一点灵感。和有趣的人，遇见值得记录的每一天。' : '共 '+batch.total+' 篇笔记 · 按最新发布排序'}"
+            ></p>
+          </section>
+          <div data-feed th:attr="data-query=${q}">
+            <div class="waterfall">
+              <div th:replace="~{fragments/components :: batch}"></div>
+            </div>
+            <th:block th:if="${#lists.isEmpty(batch.items)}"
+              ><div
+                th:replace="~{fragments/components :: empty(${#strings.isEmpty(q) ? '还没有发布笔记' : '没有找到相关笔记'},'换个关键词，发现更多生活灵感。')}"
+              ></div></th:block
+            ><button class="btn load-more" data-load-feed th:if="${!batch.end}">
+              加载更多笔记
+            </button>
+            <p
+              class="list-end"
+              data-feed-status
+              th:text="${batch.end and !#lists.isEmpty(batch.items) ? '已经看完全部笔记' : ''}"
+            ></p>
+          </div>
+        </div>
+      </main>
+      <nav th:replace="~{layouts/shell :: mobile}"></nav>
+    </div>
+    <th:block th:replace="~{layouts/shell :: feedback}"></th:block>
+  </body>
+</html>

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{layouts/shell :: head('笔记详情')}"></head>
+  <body>
+    <div>
+      <aside th:replace="~{layouts/shell :: sidebar(false)}"></aside>
+      <main class="main">
+        <header th:replace="~{layouts/shell :: topbar(false)}"></header>
+        <div class="content">
+          <a class="back" th:href="@{/}">← 返回发现</a>
+          <section class="detail" th:attr="data-detail=${note.id}">
+            <div class="gallery">
+              <img
+                th:src="@{${note.images[0]}}"
+                th:alt="${note.title}"
+                data-gallery-image
+                data-image
+              />
+              <div hidden data-gallery-sources>
+                <span
+                  th:each="src:${note.images}"
+                  th:attr="data-src=@{${src}}"
+                ></span>
+              </div>
+              <div class="row gallery-controls">
+                <button data-slide="-1" aria-label="上一张">←</button
+                ><span
+                  data-counter
+                  th:text="'1 / '+${#lists.size(note.images)}"
+                ></span
+                ><button data-slide="1" aria-label="下一张">→</button>
+              </div>
+            </div>
+            <div class="article">
+              <div class="row between">
+                <a class="row" th:href="@{/users/{id}(id=${note.author.id})}"
+                  ><span
+                    th:replace="~{fragments/components :: avatar(${note.author})}"
+                  ></span
+                  ><strong th:text="${note.author.name}"></strong
+                ></a>
+                <div class="row" th:if="${note.owner}">
+                  <a class="muted" th:href="@{/notes/{id}/edit(id=${note.id})}"
+                    >编辑</a
+                  ><button
+                    class="muted danger"
+                    th:attr="data-delete-note=${note.id}"
+                  >
+                    删除
+                  </button>
+                </div>
+              </div>
+              <h1 th:text="${note.title}"></h1>
+              <div class="bodytext" th:text="${note.body}"></div>
+              <p class="muted" th:text="${note.date}+' 发布'"></p>
+              <hr class="divider" />
+              <div class="row between">
+                <span
+                  class="muted"
+                  data-comment-count
+                  th:text="'共 '+${commentCount}+' 条评论'"
+                ></span
+                ><button
+                  th:replace="~{fragments/components :: like(${note})}"
+                ></button>
+              </div>
+              <div class="comments" data-comments>
+                <div data-comment-list>
+                  <div th:replace="~{fragments/components :: comments}"></div>
+                </div>
+                <p
+                  class="comment-empty muted"
+                  data-comments-empty
+                  th:hidden="${!#lists.isEmpty(commentPage.items)}"
+                >
+                  还没有评论，留下第一条想法吧。
+                </p>
+                <button
+                  class="muted comment-more"
+                  data-more-comments
+                  data-page="1"
+                  th:hidden="${!commentPage.hasMore}"
+                >
+                  加载更多评论
+                </button>
+              </div>
+              <form id="comment-form" class="composer">
+                <div class="row between composer-label">
+                  <span data-reply-label class="muted">留下你的想法</span
+                  ><button type="button" data-cancel-reply hidden>
+                    取消回复
+                  </button>
+                </div>
+                <textarea
+                  name="text"
+                  aria-label="评论内容"
+                  rows="2"
+                  placeholder="友善交流，让分享更有温度"
+                ></textarea>
+                <div class="row between composer-actions">
+                  <span class="muted" data-counter-for="text" data-max="500"
+                    >0 / 500</span
+                  ><button class="btn primary small">发送</button>
+                </div>
+                <p class="error" data-form-error></p>
+              </form>
+            </div>
+          </section>
+        </div>
+      </main>
+      <nav th:replace="~{layouts/shell :: mobile}"></nav>
+    </div>
+    <th:block th:replace="~{layouts/shell :: feedback}"></th:block>
+  </body>
+</html>

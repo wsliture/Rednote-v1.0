@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <head th:fragment="head(title)">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title th:text="${title} + ' · Rednote'">Rednote</title>
+    <meta name="csrf-token" th:content="${_csrf.token}" />
+    <meta name="csrf-header" th:content="${_csrf.headerName}" />
+    <meta name="context-path" th:content="@{/}" />
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/rednote.css}" />
+    <link rel="stylesheet" th:href="@{/css/integration.css}" />
+    <script type="module" th:src="@{/js/app.js}"></script>
+  </head>
+  <body>
+    <aside th:fragment="sidebar(admin)" class="sidebar">
+      <a class="logo" th:href="@{/}">Rednote<small>记录生活的美好</small></a>
+      <nav th:if="${!admin}">
+        <a
+          class="navitem"
+          th:classappend="${path == '/' or path == '/search'} ? active"
+          th:href="@{/}"
+          ><span class="icon" aria-hidden="true">⌂</span
+          ><span class="nav-label">发现</span></a
+        ><a
+          class="navitem"
+          th:classappend="${path == '/notes/new'} ? active"
+          th:href="@{/notes/new}"
+          ><span class="icon" aria-hidden="true">⊕</span
+          ><span class="nav-label">发布笔记</span></a
+        ><a
+          class="navitem"
+          th:classappend="${#strings.startsWith(path,'/users/') or path == '/settings'} ? active"
+          th:href="${me == null} ? @{/login} : @{/users/{id}(id=${me.id})}"
+          ><span class="icon" aria-hidden="true">♙</span
+          ><span class="nav-label">我的</span></a
+        >
+      </nav>
+      <nav th:if="${admin}">
+        <a
+          class="navitem"
+          th:classappend="${path == '/admin'} ? active"
+          th:href="@{/admin}"
+          >▦ 数据看板</a
+        ><a
+          class="navitem"
+          th:classappend="${path == '/admin/users'} ? active"
+          th:href="@{/admin/users}"
+          >♙ 用户管理</a
+        >
+      </nav>
+      <div class="foot">
+        <a th:if="${me != null}" class="row" th:href="@{/settings}"
+          ><span th:replace="~{fragments/components :: avatar(${me})}"></span
+          ><span><span th:text="${me.name}"></span><br />个人设置 ›</span></a
+        ><a th:if="${me == null}" class="btn primary" th:href="@{/login}"
+          >登录 / 注册</a
+        ><a th:if="${admin}" th:href="@{/}">← 返回用户端</a>
+        <p style="margin-top: 25px">
+          Rednote · 让生活被看见<br />© 2026 Rednote
+        </p>
+      </div>
+    </aside>
+    <header th:fragment="topbar(admin)" class="topbar">
+      <a class="logo mobile-logo" th:href="@{/}">Rednote</a
+      ><button
+        th:if="${admin}"
+        class="mobile-logo"
+        data-admin-menu
+        aria-label="打开管理导航"
+      >
+        ☰
+      </button>
+      <form
+        th:unless="${admin}"
+        class="search"
+        th:action="@{/search}"
+        method="get"
+      >
+        <input
+          name="q"
+          th:value="${q}"
+          aria-label="搜索笔记"
+          placeholder="搜索笔记，发现生活灵感"
+        /><button aria-label="搜索" class="icon">⌕</button>
+      </form>
+      <strong th:if="${admin}">管理后台</strong>
+      <div class="row">
+        <a
+          class="muted"
+          th:if="${me != null and me.role == 'ADMIN' and !admin}"
+          th:href="@{/admin}"
+          >管理后台 ↗</a
+        ><span class="muted" th:if="${me == null or me.role != 'ADMIN'}"
+          >记录，让美好发生</span
+        ><a th:if="${me != null}" th:href="@{/settings}"
+          ><span
+            th:replace="~{fragments/components :: avatar(${me})}"
+          ></span></a
+        ><a th:if="${me == null}" class="btn primary" th:href="@{/login}"
+          >登录</a
+        ><span th:if="${admin and me != null}" th:text="${me.name}"></span>
+      </div>
+    </header>
+    <nav th:fragment="mobile" class="mobile-nav" aria-label="底部导航">
+      <a
+        th:classappend="${path == '/' or path == '/search'} ? active"
+        th:href="@{/}"
+        ><span class="icon">⌂</span>发现</a
+      ><a
+        th:classappend="${path == '/notes/new'} ? active"
+        th:href="@{/notes/new}"
+        ><span class="publish-plus">+</span>发布</a
+      ><a
+        th:classappend="${#strings.startsWith(path,'/users/') or path == '/settings'} ? active"
+        th:href="${me == null} ? @{/login} : @{/users/{id}(id=${me.id})}"
+        ><span class="icon">♙</span>我的</a
+      ><a th:if="${me != null and me.role == 'ADMIN'}" th:href="@{/admin}"
+        >▦ 后台</a
+      >
+    </nav>
+    <th:block th:fragment="feedback"
+      ><div id="overlay"></div>
+      <div id="toast" role="status" aria-live="polite"></div>
+      <template id="admin-menu"
+        ><nav class="admin-popup">
+          <a th:href="@{/admin}">数据看板</a
+          ><a th:href="@{/admin/users}">用户管理</a
+          ><a th:href="@{/}">返回用户端</a>
+        </nav></template
+      ></th:block
+    >
+  </body>
+</html>
