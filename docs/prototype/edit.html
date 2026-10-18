@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Rednote · 发现生活的美好</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="edit" data-default-route="/edit/1">
+    <div id="app">
+      <!-- 公共片段候选：sidebar、topbar、mobile-nav；各页保留完整结构，后续可提取为 Thymeleaf 片段。 -->
+      <div class="">
+        <aside class="sidebar">
+          <a class="logo" href="#/">Rednote<small>记录生活的美好</small></a>
+          <nav>
+            <a class="navitem" href="#/"><span class="icon">⌂</span>发现</a
+            ><a class="navitem" href="#/publish"
+              ><span class="icon">⊕</span>发布笔记</a
+            ><a class="navitem" data-my-link="" href="#/login"
+              ><span class="icon">♙</span>我的</a
+            >
+          </nav>
+          <div class="foot">
+            <a class="row" href="#/settings" data-foot-user=""
+              ><span data-avatar-slot=""></span
+              ><span><span data-my-name=""></span><br />个人设置 ›</span></a
+            ><a
+              class="btn primary"
+              href="#/login"
+              style="width: 100%; margin-bottom: 20px"
+              data-guest=""
+              >登录 / 注册</a
+            >
+            <p style="margin-top: 25px">
+              Rednote · 让生活被看见<br />课程项目 / 界面原型 v1.0<br />© 2026
+              Rednote
+            </p>
+          </div>
+        </aside>
+        <main class="main">
+          <header class="topbar">
+            <a class="logo mobile-logo" href="#/">Rednote</a>
+            <form class="search" id="search-form">
+              <input
+                name="q"
+                aria-label="搜索笔记"
+                placeholder="搜索笔记，发现生活灵感"
+              /><button aria-label="搜索" class="icon">⌕</button>
+            </form>
+            <div class="row">
+              <a class="muted" href="#/admin" data-admin-only="">管理后台 ↗</a
+              ><span class="muted" data-non-admin="">记录，让美好发生</span
+              ><a data-user-avatar-link="" href="#/login"
+                ><span data-avatar-slot=""></span></a
+              ><a class="btn primary" href="#/login" data-guest="">登录</a>
+            </div>
+          </header>
+          <div class="content">
+            <!-- 编辑笔记主体：本页所需数据、权限和字段说明见 MIGRATION.md。 -->
+            <div class="reading">
+              <a class="back" href="#/note/1" data-bind="back">← 返回笔记</a>
+              <div class="pagehead">
+                <div class="eyebrow">CREATE SOMETHING LOVELY</div>
+                <h1 data-bind="heading">编辑笔记</h1>
+                <p class="muted">让每一个普通的日子，都有值得留下的瞬间。</p>
+              </div>
+              <form id="editor" class="formpanel" novalidate="">
+                <div class="formfield">
+                  <label
+                    >笔记图片
+                    <span class="muted" data-bind="image-count"
+                      >2 / 9</span
+                    ></label
+                  >
+                  <div class="upload-grid" data-bind="upload-grid"></div>
+                  <div class="hint">
+                    首张图片为封面 · 单张不超过 10 MB · 使用箭头调整顺序
+                  </div>
+                  <div class="error" data-error="images"></div>
+                </div>
+                <div class="formfield">
+                  <label for="title"
+                    >标题
+                    <span class="muted" id="title-count">18 / 50</span></label
+                  ><input
+                    name="title"
+                    id="title"
+                    placeholder="给这份美好起个标题吧"
+                  />
+                  <div class="error" data-error="title"></div>
+                </div>
+                <div class="formfield">
+                  <label for="body"
+                    >正文
+                    <span class="muted" id="body-count">129 / 5000</span></label
+                  ><textarea
+                    name="body"
+                    id="body"
+                    rows="9"
+                    placeholder="分享你的体验、故事与小小心得…"
+                  ></textarea>
+                  <div class="error" data-error="body"></div>
+                </div>
+                <div class="notice" data-bind="publish-notice">
+                  发布后所有人可见。图片上传成功后，仍需点击保存修改才能生效。
+                </div>
+                <div class="row between wrap">
+                  <button class="btn" type="button" data-cancel-editor="">
+                    取消
+                  </button>
+                  <div class="row">
+                    <button class="btn" type="button" data-preview="">
+                      预览</button
+                    ><button class="btn primary" id="publish-button">
+                      保存修改
+                    </button>
+                  </div>
+                </div>
+                <div class="error" id="publish-error"></div>
+              </form>
+            </div>
+          </div>
+        </main>
+        <nav class="mobile-nav" aria-label="底部导航">
+          <a href="#/"><span class="icon">⌂</span>发现</a
+          ><a href="#/publish"><span class="publish-plus">+</span>发布</a
+          ><a href="#/login" data-my-link=""><span class="icon">♙</span>我的</a
+          ><a href="#/admin" data-admin-only=""
+            ><span class="icon">▦</span>后台</a
+          >
+        </nav>
+      </div>
+      <button class="demo-toggle" data-demo="">⚙ 原型演示</button>
+    </div>
+    <div id="overlay"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <div id="templates" hidden="">
+      <!-- 本页使用的公共及重复项模板；迁移时可提取 th:fragment 或将内容放入可见区域用 th:each 渲染。 -->
+      <template id="tpl-avatar">
+        <span class="avatar"></span>
+      </template>
+
+      <template id="tpl-empty">
+        <div class="empty">
+          <div class="symbol">◌</div>
+          <h2></h2>
+          <p></p>
+          <a class="btn" href="#/">返回首页</a>
+        </div>
+      </template>
+
+      <template id="tpl-image-error">
+        <div class="image-failed">
+          <span>图片暂时无法加载</span><button type="button">重试</button>
+        </div>
+      </template>
+      <template id="tpl-modal">
+        <div class="modal-bg">
+          <section
+            class="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="操作对话框"
+          ></section>
+        </div>
+      </template>
+      <template id="tpl-confirm">
+        <div>
+          <h2></h2>
+          <p></p>
+          <footer>
+            <button class="btn" data-close="">取消</button
+            ><button class="btn primary" id="confirm-ok">确认</button>
+          </footer>
+        </div>
+      </template>
+      <template id="tpl-preview">
+        <div>
+          <h2></h2>
+          <img alt="封面预览" style="width: 100%; border-radius: 12px" />
+          <p style="white-space: pre-wrap"></p>
+          <footer>
+            <button class="btn" data-close="">继续编辑</button>
+          </footer>
+        </div>
+      </template>
+
+      <template id="tpl-upload">
+        <div class="upload-tile">
+          <img /><span class="badge">封面</span>
+          <div class="upload-tools">
+            <button type="button" class="danger" data-retry-image="">
+              上传失败 · 重试</button
+            ><span data-uploading="">上传中…</span
+            ><button
+              type="button"
+              data-move=""
+              data-dir="-1"
+              aria-label="图片前移"
+            >
+              ←</button
+            ><button
+              type="button"
+              data-move=""
+              data-dir="1"
+              aria-label="图片后移"
+            >
+              →</button
+            ><button type="button" data-remove-image="">移除</button>
+          </div>
+        </div>
+      </template>
+      <template id="tpl-upload-add">
+        <label class="upload-add"
+          ><span style="font-size: 30px">＋</span><span>点击添加图片</span
+          ><span>JPEG / PNG / WebP</span
+          ><input
+            id="images"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple=""
+            aria-label="上传笔记图片"
+        /></label>
+      </template>
+
+      <template id="tpl-demo">
+        <div>
+          <div class="row between">
+            <h2>原型演示</h2>
+            <button data-close="" aria-label="关闭">✕</button>
+          </div>
+          <p>这里的身份与状态仅用于评审界面，不代表真实权限或服务端行为。</p>
+          <div class="demo-options">
+            <label
+              >演示身份<select id="demo-role">
+                <option value="0">游客</option>
+                <option value="1">林小夏 · 普通用户 · 正常</option>
+                <option value="2">木木的慢生活 · 普通用户 · 正常</option>
+                <option value="3">宇辰在路上 · 普通用户 · 正常</option>
+                <option value="4" selected="">
+                  Rednote 管理员 · 管理员 · 正常
+                </option>
+                <option value="5">小鱼 · 普通用户 · 禁用</option>
+              </select></label
+            ><label
+              >页面状态<select id="demo-state">
+                <option value="normal" selected="">正常</option>
+                <option value="loading">加载中</option>
+                <option value="empty">空内容</option>
+                <option value="error">网络失败 / 保存失败</option>
+                <option value="upload-error">图片上传失败</option>
+                <option value="unknown">提交结果未知</option>
+                <option value="expired">登录过期</option>
+              </select></label
+            >
+            <div class="row wrap">
+              <a class="btn small" href="#/" data-close="">用户端首页</a
+              ><a class="btn small" href="#/admin" data-close="">后台入口</a
+              ><button class="btn small danger" data-reset="">
+                重置演示数据
+              </button>
+            </div>
+          </div>
+          <footer>
+            <button class="btn primary" id="apply-demo">应用演示</button>
+          </footer>
+        </div>
+      </template>
+    </div>
+    <script defer="" src="data.js"></script>
+    <script defer="" src="js/store.js"></script>
+    <script defer="" src="js/ui.js"></script>
+    <script defer="" src="js/pages/feed.js"></script>
+    <script defer="" src="js/pages/note.js"></script>
+    <script defer="" src="js/pages/auth.js"></script>
+    <script defer="" src="js/pages/editor.js"></script>
+    <script defer="" src="js/pages/settings.js"></script>
+    <script defer="" src="js/pages/admin.js"></script>
+    <script defer="" src="js/events.js"></script>
+    <script defer="" src="js/navigation.js"></script>
+    <script defer="" src="app.js"></script>
+    <noscript
+      >请启用 JavaScript 以操作模拟数据；页面布局与模板可直接在 HTML
+      中查看。</noscript
+    >
+  </body>
+</html>

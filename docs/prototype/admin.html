@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Rednote · 管理工作台</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="admin" data-default-route="/admin">
+    <div id="app">
+      <!-- 公共片段候选：sidebar、topbar、mobile-nav；各页保留完整结构，后续可提取为 Thymeleaf 片段。 -->
+      <div class="admin-shell">
+        <aside class="sidebar">
+          <a class="logo" href="#/">Rednote<small>记录生活的美好</small></a>
+          <div class="admin-label">管理工作台 / WORKSPACE</div>
+          <nav>
+            <a class="navitem" href="#/admin"
+              ><span class="icon">▦</span>数据看板</a
+            ><a class="navitem" href="#/admin/users"
+              ><span class="icon">♙</span>用户管理</a
+            >
+          </nav>
+          <div class="foot">
+            <a href="#/">← 返回用户端</a>
+            <p style="margin-top: 25px">
+              Rednote · 让生活被看见<br />课程项目 / 界面原型 v1.0<br />© 2026
+              Rednote
+            </p>
+          </div>
+        </aside>
+        <main class="main">
+          <header class="topbar">
+            <div class="row">
+              <button
+                class="menu-button"
+                data-admin-menu=""
+                aria-label="打开管理菜单"
+              >
+                ☰
+              </button>
+              <h2 style="margin: 0; font-size: 16px" data-admin-title="">
+                数据看板
+              </h2>
+              <span class="muted">/ 管理工作台</span>
+            </div>
+            <div class="row">
+              <span class="muted" data-my-name="">未登录</span
+              ><span data-avatar-slot=""></span>
+            </div>
+          </header>
+          <div class="content">
+            <!-- 后台数据看板主体：本页所需数据、权限和字段说明见 MIGRATION.md。 -->
+            <div class="pagehead">
+              <div class="row between">
+                <div>
+                  <div class="eyebrow">OVERVIEW</div>
+                  <h1>每一份分享，都在这里生长</h1>
+                  <p class="muted">欢迎回来，查看 Rednote 的最新数据。</p>
+                </div>
+                <button class="btn" data-refresh="">↻ 刷新数据</button>
+              </div>
+              <p class="muted" id="stat-time">
+                统计时间：2026/10/18 15:59:26（北京时间）
+              </p>
+            </div>
+            <div data-results="">
+              <div class="metrics">
+                <div class="metric">
+                  <div class="row between">
+                    <span class="muted">注册用户总量</span
+                    ><span class="mark">♙</span>
+                  </div>
+                  <div class="value" data-metric="0">4</div>
+                  <p>包含禁用账号，不含管理员</p>
+                </div>
+                <div class="metric">
+                  <div class="row between">
+                    <span class="muted">有效笔记总量</span
+                    ><span class="mark">▤</span>
+                  </div>
+                  <div class="value" data-metric="1">44</div>
+                  <p>当前未删除的公开笔记</p>
+                </div>
+                <div class="metric">
+                  <div class="row between">
+                    <span class="muted">有效点赞总量</span
+                    ><span class="mark">♡</span>
+                  </div>
+                  <div class="value" data-metric="2">21,330</div>
+                  <p>未取消且关联有效笔记</p>
+                </div>
+                <div class="metric">
+                  <div class="row between">
+                    <span class="muted">有效评论总量</span
+                    ><span class="mark">☏</span>
+                  </div>
+                  <div class="value" data-metric="3">3</div>
+                  <p>包含主评论与回复</p>
+                </div>
+              </div>
+              <section class="panel">
+                <div class="row between wrap">
+                  <div>
+                    <h2 style="font-size: 16px; margin-bottom: 8px">
+                      社区增长趋势
+                    </h2>
+                    <span class="muted"
+                      >最近 7 天 · 10 月 12 日 — 10 月 18 日</span
+                    >
+                  </div>
+                  <div class="row muted">
+                    <span style="color: #ff2442">● 新增用户</span
+                    ><span style="color: #586dab">● 发布笔记</span>
+                  </div>
+                </div>
+                <svg
+                  class="chart"
+                  viewBox="0 0 900 290"
+                  role="img"
+                  aria-label="最近七天新增用户与发布笔记趋势，演示数据"
+                >
+                  <g>
+                    <line
+                      class="grid"
+                      x1="65"
+                      x2="845"
+                      y1="235"
+                      y2="235"
+                    ></line>
+                    <text x="35" y="239">0</text>
+                    <line
+                      class="grid"
+                      x1="65"
+                      x2="845"
+                      y1="195"
+                      y2="195"
+                    ></line>
+                    <text x="35" y="199">1</text>
+                    <line
+                      class="grid"
+                      x1="65"
+                      x2="845"
+                      y1="155"
+                      y2="155"
+                    ></line>
+                    <text x="35" y="159">2</text>
+                    <line
+                      class="grid"
+                      x1="65"
+                      x2="845"
+                      y1="115"
+                      y2="115"
+                    ></line>
+                    <text x="35" y="119">3</text>
+                    <line class="grid" x1="65" x2="845" y1="75" y2="75"></line>
+                    <text x="35" y="79">4</text>
+                    <line class="grid" x1="65" x2="845" y1="35" y2="35"></line>
+                    <text x="35" y="39">5</text>
+                  </g>
+                  <polyline
+                    points="65,75 195,75 325,75 455,75 585,75 715,75 845,75"
+                    fill="none"
+                    stroke="#586dab"
+                    stroke-width="3"
+                  ></polyline>
+                  <polyline
+                    points="65,235 195,195 325,235 455,235 585,235 715,235 845,235"
+                    fill="none"
+                    stroke="#ff2442"
+                    stroke-width="3"
+                  ></polyline>
+                  <circle cx="65" cy="235" r="4" fill="#ff2442">
+                    <title>10/12 新增用户 0</title>
+                  </circle>
+                  <circle cx="65" cy="75" r="4" fill="#586dab">
+                    <title>10/12 发布笔记 4</title>
+                  </circle>
+                  <text x="65" y="270" text-anchor="middle">10/12</text>
+                  <circle cx="195" cy="195" r="4" fill="#ff2442">
+                    <title>10/13 新增用户 1</title>
+                  </circle>
+                  <circle cx="195" cy="75" r="4" fill="#586dab">
+                    <title>10/13 发布笔记 4</title>
+                  </circle>
+                  <text x="195" y="270" text-anchor="middle">10/13</text>
+                  <circle cx="325" cy="235" r="4" fill="#ff2442">
+                    <title>10/14 新增用户 0</title>
+                  </circle>
+                  <circle cx="325" cy="75" r="4" fill="#586dab">
+                    <title>10/14 发布笔记 4</title>
+                  </circle>
+                  <text x="325" y="270" text-anchor="middle">10/14</text>
+                  <circle cx="455" cy="235" r="4" fill="#ff2442">
+                    <title>10/15 新增用户 0</title>
+                  </circle>
+                  <circle cx="455" cy="75" r="4" fill="#586dab">
+                    <title>10/15 发布笔记 4</title>
+                  </circle>
+                  <text x="455" y="270" text-anchor="middle">10/15</text>
+                  <circle cx="585" cy="235" r="4" fill="#ff2442">
+                    <title>10/16 新增用户 0</title>
+                  </circle>
+                  <circle cx="585" cy="75" r="4" fill="#586dab">
+                    <title>10/16 发布笔记 4</title>
+                  </circle>
+                  <text x="585" y="270" text-anchor="middle">10/16</text>
+                  <circle cx="715" cy="235" r="4" fill="#ff2442">
+                    <title>10/17 新增用户 0</title>
+                  </circle>
+                  <circle cx="715" cy="75" r="4" fill="#586dab">
+                    <title>10/17 发布笔记 4</title>
+                  </circle>
+                  <text x="715" y="270" text-anchor="middle">10/17</text>
+                  <circle cx="845" cy="235" r="4" fill="#ff2442">
+                    <title>10/18 新增用户 0</title>
+                  </circle>
+                  <circle cx="845" cy="75" r="4" fill="#586dab">
+                    <title>10/18 发布笔记 4</title>
+                  </circle>
+                  <text x="845" y="270" text-anchor="middle">10/18</text>
+                </svg>
+              </section>
+              <section class="panel">
+                <h3>统计口径说明</h3>
+                <p class="muted" style="line-height: 2; margin: 0">
+                  总量按当前有效数据计算，禁用账号的历史公开内容仍计入统计。<br />每日新增与发布按当时发生的事件统计，后续删除不会改变历史发布数。最近
+                  7 天包含今天，今天的数据截至统计时间；无数据日期记为 0。
+                </p>
+                <p class="hint">
+                  趋势为固定演示数据；本地发布和注册只更新总量。真实日期聚合与会话撤销由后端实现。
+                </p>
+              </section>
+            </div>
+          </div>
+        </main>
+      </div>
+      <button class="demo-toggle" data-demo="">⚙ 原型演示</button>
+    </div>
+    <div id="overlay"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <div id="templates" hidden="">
+      <!-- 本页使用的公共及重复项模板；迁移时可提取 th:fragment 或将内容放入可见区域用 th:each 渲染。 -->
+      <template id="tpl-avatar">
+        <span class="avatar"></span>
+      </template>
+
+      <template id="tpl-empty">
+        <div class="empty">
+          <div class="symbol">◌</div>
+          <h2></h2>
+          <p></p>
+          <a class="btn" href="#/">返回首页</a>
+        </div>
+      </template>
+      <template id="tpl-loading">
+        <div>
+          <div class="waterfall">
+            <div class="skeleton" aria-label="加载中"></div>
+            <div class="skeleton" aria-label="加载中"></div>
+            <div class="skeleton" aria-label="加载中"></div>
+            <div class="skeleton" aria-label="加载中"></div>
+            <div class="skeleton" aria-label="加载中"></div>
+            <div class="skeleton" aria-label="加载中"></div>
+            <div class="skeleton" aria-label="加载中"></div>
+            <div class="skeleton" aria-label="加载中"></div>
+          </div>
+          <div class="load">
+            正在加载内容…
+            <button class="btn small" data-normal="">完成模拟加载</button>
+          </div>
+        </div>
+      </template>
+      <template id="tpl-error">
+        <div class="empty">
+          <div class="symbol">↻</div>
+          <h2>暂时没能加载出来</h2>
+          <p>网络开了个小差，请稍后再试。</p>
+          <button class="btn" data-normal="">重新加载</button>
+        </div>
+      </template>
+      <template id="tpl-image-error">
+        <div class="image-failed">
+          <span>图片暂时无法加载</span><button type="button">重试</button>
+        </div>
+      </template>
+      <template id="tpl-modal">
+        <div class="modal-bg">
+          <section
+            class="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="操作对话框"
+          ></section>
+        </div>
+      </template>
+      <template id="tpl-confirm">
+        <div>
+          <h2></h2>
+          <p></p>
+          <footer>
+            <button class="btn" data-close="">取消</button
+            ><button class="btn primary" id="confirm-ok">确认</button>
+          </footer>
+        </div>
+      </template>
+
+      <template id="tpl-admin-menu">
+        <div>
+          <h2>管理工作台</h2>
+          <nav class="admin-menu">
+            <a class="btn" href="#/admin" data-close="">数据看板</a
+            ><a class="btn" href="#/admin/users" data-close="">用户管理</a
+            ><a class="btn" href="#/" data-close="">返回用户端</a>
+          </nav>
+        </div>
+      </template>
+
+      <template id="tpl-demo">
+        <div>
+          <div class="row between">
+            <h2>原型演示</h2>
+            <button data-close="" aria-label="关闭">✕</button>
+          </div>
+          <p>这里的身份与状态仅用于评审界面，不代表真实权限或服务端行为。</p>
+          <div class="demo-options">
+            <label
+              >演示身份<select id="demo-role">
+                <option value="0">游客</option>
+                <option value="1">林小夏 · 普通用户 · 正常</option>
+                <option value="2">木木的慢生活 · 普通用户 · 正常</option>
+                <option value="3">宇辰在路上 · 普通用户 · 正常</option>
+                <option value="4" selected="">
+                  Rednote 管理员 · 管理员 · 正常
+                </option>
+                <option value="5">小鱼 · 普通用户 · 禁用</option>
+              </select></label
+            ><label
+              >页面状态<select id="demo-state">
+                <option value="normal" selected="">正常</option>
+                <option value="loading">加载中</option>
+                <option value="empty">空内容</option>
+                <option value="error">网络失败 / 保存失败</option>
+                <option value="upload-error">图片上传失败</option>
+                <option value="unknown">提交结果未知</option>
+                <option value="expired">登录过期</option>
+              </select></label
+            >
+            <div class="row wrap">
+              <a class="btn small" href="#/" data-close="">用户端首页</a
+              ><a class="btn small" href="#/admin" data-close="">后台入口</a
+              ><button class="btn small danger" data-reset="">
+                重置演示数据
+              </button>
+            </div>
+          </div>
+          <footer>
+            <button class="btn primary" id="apply-demo">应用演示</button>
+          </footer>
+        </div>
+      </template>
+    </div>
+    <script defer="" src="data.js"></script>
+    <script defer="" src="js/store.js"></script>
+    <script defer="" src="js/ui.js"></script>
+    <script defer="" src="js/pages/feed.js"></script>
+    <script defer="" src="js/pages/note.js"></script>
+    <script defer="" src="js/pages/auth.js"></script>
+    <script defer="" src="js/pages/editor.js"></script>
+    <script defer="" src="js/pages/settings.js"></script>
+    <script defer="" src="js/pages/admin.js"></script>
+    <script defer="" src="js/events.js"></script>
+    <script defer="" src="js/navigation.js"></script>
+    <script defer="" src="app.js"></script>
+    <noscript
+      >请启用 JavaScript 以操作模拟数据；页面布局与模板可直接在 HTML
+      中查看。</noscript
+    >
+  </body>
+</html>

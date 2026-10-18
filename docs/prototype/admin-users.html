@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Rednote · 管理工作台</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="admin-users" data-default-route="/admin/users">
+    <div id="app">
+      <!-- 公共片段候选：sidebar、topbar、mobile-nav；各页保留完整结构，后续可提取为 Thymeleaf 片段。 -->
+      <div class="admin-shell">
+        <aside class="sidebar">
+          <a class="logo" href="#/">Rednote<small>记录生活的美好</small></a>
+          <div class="admin-label">管理工作台 / WORKSPACE</div>
+          <nav>
+            <a class="navitem" href="#/admin"
+              ><span class="icon">▦</span>数据看板</a
+            ><a class="navitem" href="#/admin/users"
+              ><span class="icon">♙</span>用户管理</a
+            >
+          </nav>
+          <div class="foot">
+            <a href="#/">← 返回用户端</a>
+            <p style="margin-top: 25px">
+              Rednote · 让生活被看见<br />课程项目 / 界面原型 v1.0<br />© 2026
+              Rednote
+            </p>
+          </div>
+        </aside>
+        <main class="main">
+          <header class="topbar">
+            <div class="row">
+              <button
+                class="menu-button"
+                data-admin-menu=""
+                aria-label="打开管理菜单"
+              >
+                ☰
+              </button>
+              <h2 style="margin: 0; font-size: 16px" data-admin-title="">
+                数据看板
+              </h2>
+              <span class="muted">/ 管理工作台</span>
+            </div>
+            <div class="row">
+              <span class="muted" data-my-name="">未登录</span
+              ><span data-avatar-slot=""></span>
+            </div>
+          </header>
+          <div class="content">
+            <!-- 后台用户管理主体：本页所需数据、权限和字段说明见 MIGRATION.md。 -->
+            <div class="pagehead">
+              <div class="eyebrow">COMMUNITY MEMBERS</div>
+              <h1>用户管理</h1>
+              <p class="muted">了解社区成员，管理账号状态。</p>
+            </div>
+            <section class="panel">
+              <form class="filters" id="filter-form">
+                <div>
+                  <label for="fu">用户名</label
+                  ><input
+                    id="fu"
+                    name="username"
+                    placeholder="搜索用户名"
+                    value=""
+                  />
+                </div>
+                <div>
+                  <label for="fn">昵称</label
+                  ><input id="fn" name="name" placeholder="搜索昵称" value="" />
+                </div>
+                <div>
+                  <label for="fs">账号状态</label
+                  ><select id="fs" name="status">
+                    <option value="">全部状态</option>
+                    <option>正常</option>
+                    <option>禁用</option>
+                  </select>
+                </div>
+                <div class="row">
+                  <button class="btn primary">查询</button
+                  ><button class="btn" type="button" data-reset-filter="">
+                    重置
+                  </button>
+                </div>
+              </form>
+              <div data-results="">
+                <div class="tablewrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>用户 ID</th>
+                        <th>用户</th>
+                        <th>昵称</th>
+                        <th>角色</th>
+                        <th>状态</th>
+                        <th>注册时间</th>
+                        <th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+      <button class="demo-toggle" data-demo="">⚙ 原型演示</button>
+    </div>
+    <div id="overlay"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <div id="templates" hidden="">
+      <!-- 本页使用的公共及重复项模板；迁移时可提取 th:fragment 或将内容放入可见区域用 th:each 渲染。 -->
+      <template id="tpl-avatar">
+        <span class="avatar"></span>
+      </template>
+
+      <template id="tpl-pagination">
+        <div class="pagination">
+          <span data-total=""></span>
+          <div class="row">
+            <button class="btn small" data-page-prev="">上一页</button
+            ><span data-page-label=""></span
+            ><button class="btn small" data-page-next="">下一页</button>
+          </div>
+        </div>
+      </template>
+      <template id="tpl-empty">
+        <div class="empty">
+          <div class="symbol">◌</div>
+          <h2></h2>
+          <p></p>
+          <a class="btn" href="#/">返回首页</a>
+        </div>
+      </template>
+      <template id="tpl-loading">
+        <div>
+          <div class="waterfall">
+            <div class="skeleton" aria-label="加载中"></div>
+            <div class="skeleton" aria-label="加载中"></div>
+            <div class="skeleton" aria-label="加载中"></div>
+            <div class="skeleton" aria-label="加载中"></div>
+            <div class="skeleton" aria-label="加载中"></div>
+            <div class="skeleton" aria-label="加载中"></div>
+            <div class="skeleton" aria-label="加载中"></div>
+            <div class="skeleton" aria-label="加载中"></div>
+          </div>
+          <div class="load">
+            正在加载内容…
+            <button class="btn small" data-normal="">完成模拟加载</button>
+          </div>
+        </div>
+      </template>
+      <template id="tpl-error">
+        <div class="empty">
+          <div class="symbol">↻</div>
+          <h2>暂时没能加载出来</h2>
+          <p>网络开了个小差，请稍后再试。</p>
+          <button class="btn" data-normal="">重新加载</button>
+        </div>
+      </template>
+      <template id="tpl-image-error">
+        <div class="image-failed">
+          <span>图片暂时无法加载</span><button type="button">重试</button>
+        </div>
+      </template>
+      <template id="tpl-modal">
+        <div class="modal-bg">
+          <section
+            class="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="操作对话框"
+          ></section>
+        </div>
+      </template>
+      <template id="tpl-confirm">
+        <div>
+          <h2></h2>
+          <p></p>
+          <footer>
+            <button class="btn" data-close="">取消</button
+            ><button class="btn primary" id="confirm-ok">确认</button>
+          </footer>
+        </div>
+      </template>
+
+      <template id="tpl-admin-menu">
+        <div>
+          <h2>管理工作台</h2>
+          <nav class="admin-menu">
+            <a class="btn" href="#/admin" data-close="">数据看板</a
+            ><a class="btn" href="#/admin/users" data-close="">用户管理</a
+            ><a class="btn" href="#/" data-close="">返回用户端</a>
+          </nav>
+        </div>
+      </template>
+
+      <template id="tpl-user-row">
+        <tr>
+          <td class="muted" data-user-id=""></td>
+          <td>
+            <span data-avatar-slot=""></span><span data-username=""></span>
+          </td>
+          <td data-name=""></td>
+          <td class="role" data-role=""></td>
+          <td><span class="status"></span></td>
+          <td class="muted" data-date=""></td>
+          <td>
+            <div class="row">
+              <button data-user-detail="">查看</button
+              ><button data-status-user="">禁用</button>
+            </div>
+          </td>
+        </tr>
+      </template>
+      <template id="tpl-user-detail">
+        <div>
+          <div class="row between">
+            <h2>用户资料</h2>
+            <button data-close="" aria-label="关闭">✕</button>
+          </div>
+          <div class="row" style="margin-top: 35px">
+            <span data-avatar-slot=""></span>
+            <div>
+              <h2 data-name=""></h2>
+              <span class="status"></span>
+            </div>
+          </div>
+          <dl class="detail-list">
+            <dt>用户 ID</dt>
+            <dd data-user-id=""></dd>
+            <dt>用户名</dt>
+            <dd data-username=""></dd>
+            <dt>角色</dt>
+            <dd data-role=""></dd>
+            <dt>注册时间</dt>
+            <dd data-date=""></dd>
+            <dt>个人简介</dt>
+            <dd data-bio=""></dd>
+            <dt>有效笔记</dt>
+            <dd data-note-count=""></dd>
+          </dl>
+          <button class="btn" data-status-user=""></button>
+          <p class="hint" data-admin-hint="">管理员账号不支持禁用。</p>
+        </div>
+      </template>
+      <template id="tpl-demo">
+        <div>
+          <div class="row between">
+            <h2>原型演示</h2>
+            <button data-close="" aria-label="关闭">✕</button>
+          </div>
+          <p>这里的身份与状态仅用于评审界面，不代表真实权限或服务端行为。</p>
+          <div class="demo-options">
+            <label
+              >演示身份<select id="demo-role">
+                <option value="0">游客</option>
+                <option value="1">林小夏 · 普通用户 · 正常</option>
+                <option value="2">木木的慢生活 · 普通用户 · 正常</option>
+                <option value="3">宇辰在路上 · 普通用户 · 正常</option>
+                <option value="4" selected="">
+                  Rednote 管理员 · 管理员 · 正常
+                </option>
+                <option value="5">小鱼 · 普通用户 · 禁用</option>
+              </select></label
+            ><label
+              >页面状态<select id="demo-state">
+                <option value="normal" selected="">正常</option>
+                <option value="loading">加载中</option>
+                <option value="empty">空内容</option>
+                <option value="error">网络失败 / 保存失败</option>
+                <option value="upload-error">图片上传失败</option>
+                <option value="unknown">提交结果未知</option>
+                <option value="expired">登录过期</option>
+              </select></label
+            >
+            <div class="row wrap">
+              <a class="btn small" href="#/" data-close="">用户端首页</a
+              ><a class="btn small" href="#/admin" data-close="">后台入口</a
+              ><button class="btn small danger" data-reset="">
+                重置演示数据
+              </button>
+            </div>
+          </div>
+          <footer>
+            <button class="btn primary" id="apply-demo">应用演示</button>
+          </footer>
+        </div>
+      </template>
+    </div>
+    <script defer="" src="data.js"></script>
+    <script defer="" src="js/store.js"></script>
+    <script defer="" src="js/ui.js"></script>
+    <script defer="" src="js/pages/feed.js"></script>
+    <script defer="" src="js/pages/note.js"></script>
+    <script defer="" src="js/pages/auth.js"></script>
+    <script defer="" src="js/pages/editor.js"></script>
+    <script defer="" src="js/pages/settings.js"></script>
+    <script defer="" src="js/pages/admin.js"></script>
+    <script defer="" src="js/events.js"></script>
+    <script defer="" src="js/navigation.js"></script>
+    <script defer="" src="app.js"></script>
+    <noscript
+      >请启用 JavaScript 以操作模拟数据；页面布局与模板可直接在 HTML
+      中查看。</noscript
+    >
+  </body>
+</html>

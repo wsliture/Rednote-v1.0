@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Rednote · 发现生活的美好</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="note" data-default-route="/note/1">
+    <div id="app">
+      <!-- 公共片段候选：sidebar、topbar、mobile-nav；各页保留完整结构，后续可提取为 Thymeleaf 片段。 -->
+      <div class="">
+        <aside class="sidebar">
+          <a class="logo" href="#/">Rednote<small>记录生活的美好</small></a>
+          <nav>
+            <a class="navitem" href="#/"><span class="icon">⌂</span>发现</a
+            ><a class="navitem" href="#/publish"
+              ><span class="icon">⊕</span>发布笔记</a
+            ><a class="navitem" data-my-link="" href="#/login"
+              ><span class="icon">♙</span>我的</a
+            >
+          </nav>
+          <div class="foot">
+            <a class="row" href="#/settings" data-foot-user=""
+              ><span data-avatar-slot=""></span
+              ><span><span data-my-name=""></span><br />个人设置 ›</span></a
+            ><a
+              class="btn primary"
+              href="#/login"
+              style="width: 100%; margin-bottom: 20px"
+              data-guest=""
+              >登录 / 注册</a
+            >
+            <p style="margin-top: 25px">
+              Rednote · 让生活被看见<br />课程项目 / 界面原型 v1.0<br />© 2026
+              Rednote
+            </p>
+          </div>
+        </aside>
+        <main class="main">
+          <header class="topbar">
+            <a class="logo mobile-logo" href="#/">Rednote</a>
+            <form class="search" id="search-form">
+              <input
+                name="q"
+                aria-label="搜索笔记"
+                placeholder="搜索笔记，发现生活灵感"
+              /><button aria-label="搜索" class="icon">⌕</button>
+            </form>
+            <div class="row">
+              <a class="muted" href="#/admin" data-admin-only="">管理后台 ↗</a
+              ><span class="muted" data-non-admin="">记录，让美好发生</span
+              ><a data-user-avatar-link="" href="#/login"
+                ><span data-avatar-slot=""></span></a
+              ><a class="btn primary" href="#/login" data-guest="">登录</a>
+            </div>
+          </header>
+          <div class="content">
+            <!-- 笔记详情主体：本页所需数据、权限和字段说明见 MIGRATION.md。 -->
+            <a class="back" href="#/">← 返回发现</a>
+            <section class="detail">
+              <div class="gallery">
+                <img
+                  src="images/photo-1441974231531-c6227db76b6e.jpg"
+                  alt="笔记图片 1"
+                  data-image=""
+                  data-bind="gallery-image"
+                />
+                <div class="row gallery-controls">
+                  <button data-slide="-1" aria-label="上一张">←</button
+                  ><span class="counter" data-bind="image-counter">1 / 2</span
+                  ><button data-slide="1" aria-label="下一张">→</button>
+                </div>
+              </div>
+              <div class="article">
+                <div class="row between">
+                  <a class="row" href="#/profile/1" data-bind="author-link"
+                    ><span data-note-avatar=""></span
+                    ><strong style="font-size: 14px" data-bind="author-name"
+                      >林小夏</strong
+                    ></a
+                  >
+                  <div class="row" data-bind="owner-actions">
+                    <a class="muted" href="#/edit/1">编辑</a
+                    ><button class="muted danger" data-delete-note="1">
+                      删除
+                    </button>
+                  </div>
+                </div>
+                <h1 data-bind="title">把周末交给山野，找回生活的呼吸感 🌿</h1>
+                <div class="bodytext" data-bind="body">
+                  把周末交给山野，找回生活的呼吸感 🌿
+                  最近越来越喜欢这样的日常。放下手里的事情，给自己一点留白，去感受阳光、微风和眼前的风景。
+                  不用赶路，也不用安排得太满。和喜欢的人一起，认真记录每一个普通却闪闪发光的瞬间。
+                  你最近发现了哪些生活里的美好？一起聊聊吧。
+                </div>
+                <p class="muted" style="margin-top: 20px" data-bind="date">
+                  2026-10-18 10:59 发布
+                </p>
+                <hr class="divider" />
+                <div class="row between">
+                  <span class="muted" data-bind="comment-count"
+                    >共 3 条评论</span
+                  ><span data-note-like=""></span>
+                </div>
+                <div class="comments" data-bind="comments"></div>
+                <form id="comment-form" class="composer" data-note="1">
+                  <div class="row between">
+                    <span class="muted" data-bind="reply-label"
+                      >留下你的想法</span
+                    ><button type="button" class="muted" data-cancel-reply="">
+                      取消回复
+                    </button>
+                  </div>
+                  <textarea
+                    name="text"
+                    aria-label="评论内容"
+                    placeholder="友善交流，让分享更有温度"
+                    rows="2"
+                  ></textarea>
+                  <div class="row between" style="margin-top: 10px">
+                    <span class="muted">1–500 字 · 纯文本</span
+                    ><button class="btn primary small">发送</button>
+                  </div>
+                  <div class="error" id="comment-error"></div>
+                </form>
+              </div>
+            </section>
+          </div>
+        </main>
+        <nav class="mobile-nav" aria-label="底部导航">
+          <a href="#/"><span class="icon">⌂</span>发现</a
+          ><a href="#/publish"><span class="publish-plus">+</span>发布</a
+          ><a href="#/login" data-my-link=""><span class="icon">♙</span>我的</a
+          ><a href="#/admin" data-admin-only=""
+            ><span class="icon">▦</span>后台</a
+          >
+        </nav>
+      </div>
+      <button class="demo-toggle" data-demo="">⚙ 原型演示</button>
+    </div>
+    <div id="overlay"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <div id="templates" hidden="">
+      <!-- 本页使用的公共及重复项模板；迁移时可提取 th:fragment 或将内容放入可见区域用 th:each 渲染。 -->
+      <template id="tpl-avatar">
+        <span class="avatar"></span>
+      </template>
+      <template id="tpl-like">
+        <button class="heart" aria-label="点赞" aria-pressed="false">
+          <span data-heart="">♡</span> <span data-count="">0</span>
+        </button>
+      </template>
+
+      <template id="tpl-comment">
+        <div class="comment">
+          <span data-avatar-slot=""></span>
+          <div class="text">
+            <a class="muted" data-author-link=""></a>
+            <p data-comment-text=""></p>
+            <div class="comment-tools">
+              <span data-date=""></span><button data-reply="">回复</button
+              ><button data-delete-comment="">删除</button>
+            </div>
+          </div>
+        </div>
+      </template>
+      <template id="tpl-reply">
+        <div class="comment">
+          <span data-avatar-slot=""></span>
+          <div class="text">
+            <a class="muted" data-author-link=""></a>
+            <p>
+              回复 <span style="color: #888" data-target-name=""></span>：<span
+                data-comment-text=""
+              ></span>
+            </p>
+            <div class="comment-tools">
+              <span data-date=""></span><button data-reply="">回复</button
+              ><button data-delete-reply="">删除</button>
+            </div>
+          </div>
+        </div>
+      </template>
+      <template id="tpl-reply-group">
+        <div class="reply"></div>
+      </template>
+      <template id="tpl-more">
+        <button class="muted"></button>
+      </template>
+      <template id="tpl-empty-comments">
+        <p class="muted" style="padding: 25px 0">
+          还没有评论，来聊聊你的想法吧。
+        </p>
+      </template>
+
+      <template id="tpl-empty">
+        <div class="empty">
+          <div class="symbol">◌</div>
+          <h2></h2>
+          <p></p>
+          <a class="btn" href="#/">返回首页</a>
+        </div>
+      </template>
+
+      <template id="tpl-image-error">
+        <div class="image-failed">
+          <span>图片暂时无法加载</span><button type="button">重试</button>
+        </div>
+      </template>
+      <template id="tpl-modal">
+        <div class="modal-bg">
+          <section
+            class="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="操作对话框"
+          ></section>
+        </div>
+      </template>
+      <template id="tpl-confirm">
+        <div>
+          <h2></h2>
+          <p></p>
+          <footer>
+            <button class="btn" data-close="">取消</button
+            ><button class="btn primary" id="confirm-ok">确认</button>
+          </footer>
+        </div>
+      </template>
+
+      <template id="tpl-demo">
+        <div>
+          <div class="row between">
+            <h2>原型演示</h2>
+            <button data-close="" aria-label="关闭">✕</button>
+          </div>
+          <p>这里的身份与状态仅用于评审界面，不代表真实权限或服务端行为。</p>
+          <div class="demo-options">
+            <label
+              >演示身份<select id="demo-role">
+                <option value="0">游客</option>
+                <option value="1">林小夏 · 普通用户 · 正常</option>
+                <option value="2">木木的慢生活 · 普通用户 · 正常</option>
+                <option value="3">宇辰在路上 · 普通用户 · 正常</option>
+                <option value="4" selected="">
+                  Rednote 管理员 · 管理员 · 正常
+                </option>
+                <option value="5">小鱼 · 普通用户 · 禁用</option>
+              </select></label
+            ><label
+              >页面状态<select id="demo-state">
+                <option value="normal" selected="">正常</option>
+                <option value="loading">加载中</option>
+                <option value="empty">空内容</option>
+                <option value="error">网络失败 / 保存失败</option>
+                <option value="upload-error">图片上传失败</option>
+                <option value="unknown">提交结果未知</option>
+                <option value="expired">登录过期</option>
+              </select></label
+            >
+            <div class="row wrap">
+              <a class="btn small" href="#/" data-close="">用户端首页</a
+              ><a class="btn small" href="#/admin" data-close="">后台入口</a
+              ><button class="btn small danger" data-reset="">
+                重置演示数据
+              </button>
+            </div>
+          </div>
+          <footer>
+            <button class="btn primary" id="apply-demo">应用演示</button>
+          </footer>
+        </div>
+      </template>
+    </div>
+    <script defer="" src="data.js"></script>
+    <script defer="" src="js/store.js"></script>
+    <script defer="" src="js/ui.js"></script>
+    <script defer="" src="js/pages/feed.js"></script>
+    <script defer="" src="js/pages/note.js"></script>
+    <script defer="" src="js/pages/auth.js"></script>
+    <script defer="" src="js/pages/editor.js"></script>
+    <script defer="" src="js/pages/settings.js"></script>
+    <script defer="" src="js/pages/admin.js"></script>
+    <script defer="" src="js/events.js"></script>
+    <script defer="" src="js/navigation.js"></script>
+    <script defer="" src="app.js"></script>
+    <noscript
+      >请启用 JavaScript 以操作模拟数据；页面布局与模板可直接在 HTML
+      中查看。</noscript
+    >
+  </body>
+</html>
