@@ -41,3 +41,7 @@ __pycache__/
 *.pyc
 
 .DS_Store
+
+# Docker deployment credentials and paired backups
+/deploy/docker/deploy.env
+/backups/

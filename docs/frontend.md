@@ -1,5 +1,7 @@
 # Thymeleaf 前端接入
 
+Docker Compose 单机部署见 [Docker 部署说明](docker-deploy.md)。
+
 本次交付覆盖用户端 9 页、后台 2 页。页面首屏由 Thymeleaf 渲染，Bootstrap 5.3.8、原生 ES modules 与图片全部由应用本地提供，无 Node 构建或 CDN 运行依赖。原型保留在 `docs/prototype/`。
 
 ## 启动与账号

@@ -1,5 +1,7 @@
 # Rednote 后端运行与维护
 
+Docker Compose 单机部署见 [Docker 部署说明](docker-deploy.md)。
+
 后端使用 Java 17、Spring Boot 4.0.8、Spring Security、Thymeleaf、Spring Data JPA、Flyway、MySQL 8.4 和本地持久化图片。Controller → Service → Repository / FileStorage 分层，`DatabaseApplication` 是页面应用接口的薄适配器。
 
 ## 本地启动

@@ -23,6 +23,10 @@ public class ApplicationConfig {
       UserService users,
       @Value("${rednote.admin.username}") String username,
       @Value("${rednote.admin.password}") String password) {
-    return args -> users.initializeAdmin(username, password);
+    return args -> {
+      users.initializeAdmin(username, password);
+      org.slf4j.LoggerFactory.getLogger(ApplicationConfig.class)
+          .info("Rednote administrator initialization completed");
+    };
   }
 }

@@ -14,3 +14,5 @@ scripts/dev.sh
 - [后端验收记录](docs/backend-verification.md)
 - [产品需求](docs/prd.md)、[架构](docs/arch.md)、[数据库设计](docs/database-design.md)
 - [页面与接口契约](docs/frontend.md)
+
+- [Docker Compose 部署](docs/docker-deploy.md)

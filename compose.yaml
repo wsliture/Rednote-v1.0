@@ -1,0 +1,63 @@
+name: ${REDNOTE_PROJECT_NAME:-rednote}
+services:
+  db:
+    image: ${REDNOTE_IMAGE_PREFIX:-}mysql:8.4.8
+    environment:
+      MYSQL_DATABASE: rednote
+      MYSQL_USER: rednote
+      MYSQL_PASSWORD: ${REDNOTE_DB_PASSWORD:?Run scripts/docker.sh init first}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Run scripts/docker.sh init first}
+      TZ: UTC
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_as_ci", "--innodb-buffer-pool-size=128M", "--max-connections=50", "--performance-schema=OFF"]
+    mem_limit: ${REDNOTE_DB_MEMORY_LIMIT:-512m}
+    ports:
+      - "${REDNOTE_DB_BIND_ADDRESS:-127.0.0.1}:${REDNOTE_DB_PORT:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_PASSWORD\" mysql --protocol=TCP -h 127.0.0.1 -u\"$$MYSQL_USER\" \"$$MYSQL_DATABASE\" -e 'SELECT 1' >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    restart: unless-stopped
+    stop_grace_period: 60s
+    logging: &logging
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+  app:
+    image: rednote-app:${REDNOTE_IMAGE_TAG:-local}
+    build:
+      context: .
+      args:
+        REDNOTE_IMAGE_PREFIX: ${REDNOTE_IMAGE_PREFIX:-}
+    environment:
+      SPRING_PROFILES_ACTIVE: prod,docker
+      SPRING_CONFIG_IMPORT: ""
+      REDNOTE_DB_URL: jdbc:mysql://db:3306/rednote?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&characterEncoding=UTF-8
+      REDNOTE_DB_USER: rednote
+      REDNOTE_DB_PASSWORD: ${REDNOTE_DB_PASSWORD:?Run scripts/docker.sh init first}
+      REDNOTE_UPLOAD_ROOT: /var/lib/rednote/uploads
+      REDNOTE_LOG_FILE: /var/log/rednote/application.log
+      REDNOTE_COOKIE_SECURE: ${REDNOTE_COOKIE_SECURE:-false}
+      SERVER_FORWARD_HEADERS_STRATEGY: ${REDNOTE_FORWARD_HEADERS_STRATEGY:-none}
+      JAVA_TOOL_OPTIONS: ${REDNOTE_JAVA_OPTIONS:--XX:MaxRAMPercentage=65.0}
+      TZ: UTC
+    ports:
+      - "${REDNOTE_BIND_ADDRESS:-0.0.0.0}:${REDNOTE_HTTP_PORT:-80}:8080"
+    volumes:
+      - uploads:/var/lib/rednote/uploads
+      - app-logs:/var/log/rednote
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    stop_grace_period: 60s
+    mem_limit: ${REDNOTE_APP_MEMORY_LIMIT:-1536m}
+    logging: *logging
+volumes:
+  mysql-data:
+  uploads:
+  app-logs:

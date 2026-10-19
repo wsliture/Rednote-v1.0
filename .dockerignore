@@ -1,0 +1,8 @@
+**
+!pom.xml
+!src/
+!src/**
+!Dockerfile
+src/test/
+**/.DS_Store
+**/._*
