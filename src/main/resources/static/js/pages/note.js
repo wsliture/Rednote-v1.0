@@ -1,10 +1,11 @@
 import { request, error, busy, url } from "../http.js";
 import { toast, dialog, safeFragment } from "../ui.js";
 import { length } from "../validation.js";
+import { initGallery } from "../gallery.js";
 export function initNote() {
   const detail = document.querySelector("[data-detail]");
-  let target = null,
-    slide = 0;
+  let target = null;
+  const moveGallery = detail ? initGallery(detail) : null;
   const commentForm = document.querySelector("#comment-form");
   function resetReply() {
     target = null;
@@ -72,20 +73,7 @@ export function initNote() {
 
   return async (b) => {
     if (!detail) return;
-    if (b.hasAttribute("data-slide")) {
-      const sources = [
-        ...detail.querySelectorAll("[data-gallery-sources] [data-src]"),
-      ];
-      slide =
-        (slide + Number(b.dataset.slide) + sources.length) % sources.length;
-      const img = detail.querySelector("[data-gallery-image]");
-      img.hidden = false;
-      img.nextElementSibling?.classList.contains("image-failed") &&
-        img.nextElementSibling.remove();
-      img.src = sources[slide].dataset.src;
-      detail.querySelector("[data-counter]").textContent =
-        `${slide + 1} / ${sources.length}`;
-    }
+    if (b.hasAttribute("data-slide")) moveGallery(Number(b.dataset.slide));
     if (b.hasAttribute("data-delete-note"))
       dialog("删除这篇笔记？", "相关点赞、评论和回复也将一并删除。", {
         confirm: async () => {

@@ -65,10 +65,26 @@ public class ActionController {
   }
 
   @GetMapping("/files/{key}")
-  Object file(@PathVariable String key, Authentication a) {
+  Object file(
+      @PathVariable String key,
+      Authentication a,
+      org.springframework.web.context.request.WebRequest request)
+      throws java.io.IOException {
     var file = app.file(key, viewer(a));
+    String etag = "W/\"rednote-file-" + Long.parseLong(key) + "\"";
+    // Authorize and verify file availability before honoring conditional requests.
+    if (request.checkNotModified(etag)) {
+      try (var stream = file.resource().getInputStream()) {
+        // Local storage holds a read lock until this stream is closed.
+      }
+      return org.springframework.http.ResponseEntity.status(304)
+          .header("Cache-Control", "private, no-cache")
+          .eTag(etag)
+          .build();
+    }
     return org.springframework.http.ResponseEntity.ok()
-        .header("Cache-Control", "no-store")
+        .header("Cache-Control", "private, no-cache")
+        .eTag(etag)
         .header("X-Content-Type-Options", "nosniff")
         .contentType(org.springframework.http.MediaType.parseMediaType(file.mime()))
         .body(file.resource());

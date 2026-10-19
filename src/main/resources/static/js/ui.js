@@ -113,6 +113,7 @@ export function imageErrors() {
       if (
         !(img instanceof HTMLImageElement) ||
         !img.hasAttribute("data-image") ||
+        img.hasAttribute("data-gallery-image") ||
         img.nextElementSibling?.classList.contains("image-failed")
       )
         return;

@@ -76,7 +76,7 @@ scripts/dev.sh
 | DELETE `/actions/notes/{id}`           | 无                               | `{success: true}`                     |
 | POST `/actions/files`                  | multipart 单文件字段 `file`      | `{id, url}`，逐张上传                 |
 | PUT `/actions/admin/users/{id}/status` | `{status: "正常" 或 "禁用"}`     | 后台 `User` DTO                       |
-| GET `/files/{id}`                      | 数据库图片 ID                   | 受控图片流、实际 MIME、no-store、nosniff |
+| GET `/files/{id}`                      | 数据库图片 ID                   | 受控图片流、实际 MIME、private/no-cache、ETag、nosniff |
 | DELETE `/actions/files/{id}`           | 无                              | `{success: true}`，仅本人无引用文件 |
 
 错误结构为 `{code, message, fields?}`。400 输入错误、401 认证失效、403 权限或 CSRF、404 内容不可用、409 状态/编辑版本冲突、413 文件超限、415 图片类型/解码失败。未预期服务错误由 Spring 返回 500，客户端展示失败，不假报成功。未来真实业务按架构补齐请求追踪 ID。
@@ -87,7 +87,7 @@ scripts/dev.sh
 
 `DatabaseApplication` 实现 `RednoteApplicationPort`，委派给独立业务 Service；Controller 不操作 Repository，不向模板传递 Entity。图片标识为数据库 ID 的十进制字符串，禁止提交任意路径或外部 URL。
 
-图片支持 JPEG、PNG、WebP，单张最多 10 MiB、4000 万像素。无引用图片仅上传者可读取，公开头像或有效笔记引用的图片允许游客读取；所有图片响应禁止缓存。上传根目录不映射为静态资源。
+图片支持 JPEG、PNG、WebP，单张最多 10 MiB、4000 万像素。无引用图片仅上传者可读取，公开头像或有效笔记引用的图片允许游客读取；上传图片成功响应使用 `Cache-Control: private, no-cache` 与稳定弱 ETag；每次先验证访问权限及文件可用性，再处理条件请求，未变更返回 304。错误响应禁止缓存。上传根目录不映射为静态资源。
 
 公开主页使用 `PublicUser`，不含角色、状态或认证字段；后台使用管理展示 DTO。认证失效、CSRF、归属、版本冲突由服务端检查。JSON 错误包含 `code`、`message`、`fields`、`requestId`，响应头提供 `X-Request-ID`。
 
@@ -117,3 +117,11 @@ node tests/browser/smoke.cjs
 `Views.CommentPage` 返回 `items`、`hasMore` 与全笔记评论总量 `total`。主评论和回复均读取 21 条判断后续页，只展示 20 条；空态由详情页评论容器持有，分页片段不输出空态。刷新、发表与删除后统一更新计数、空态和加载按钮。
 
 专项浏览器回归：`node tests/browser/comments-layout.cjs`，沿用上文的 `NODE_PATH`、`REDNOTE_URL`、`REDNOTE_BROWSER_PATH` 和 `REDNOTE_SCREENSHOTS` 环境变量。覆盖导航对齐、输入区间距、零评论、删除最后一条、20/21 条主评论及回复、末页重复点击和三种视口。
+
+### 图片切换与生产缓存
+
+详情页保留当前页面已加载、解码的图片节点，并预加载相邻图片。加载中保留当前画面，成功后同步图片和页码；快速点击以最后一次选择为准，失败可重试。单图隐藏切换按钮。页面内节点复用不发起重复下载，与 HTTP 缓存校验是两个层次。
+
+生产环境静态资源（CSS、JS 及其模块、内置图片、vendor、favicon）使用 `public, no-cache`，允许保存，但每次复用前通过 Last-Modified 校验，未变更返回 304。开发及默认环境使用 no-store。上传图片在所有环境使用上述私有缓存策略；包含登录状态及 CSRF 令牌的动态 HTML、业务接口及错误响应仍禁止缓存。Thymeleaf 模板缓存仅影响服务端模板解析，不代表 HTML HTTP 缓存。
+
+独立切图回归（无需数据库或运行中的应用）：`NODE_PATH=/path/to/node_modules node tests/browser/gallery-cache.cjs`。可用 `REDNOTE_BROWSER_PATH` 指定 Chromium，默认使用本机 Microsoft Edge。覆盖慢加载、快速连续点击、循环切换、已加载节点复用、解码失败重试、预加载网络失败及单图控件隐藏。后端 `scripts/test.sh` 包含文件条件请求、撤销访问后的校验和生产静态资源 304 验证。

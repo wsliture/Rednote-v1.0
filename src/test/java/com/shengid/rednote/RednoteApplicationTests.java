@@ -165,6 +165,41 @@ class RednoteApplicationTests {
 
   @Test
   @Order(2)
+  void conditionalFilesStillAuthorizeAndReleaseReadLocks() throws Exception {
+    var file = upload(a);
+    long n = note(a, "缓存校验", file.id());
+    var client = browser();
+    String path = "/files/" + file.id();
+    var first = get(client, path);
+    assertEquals(200, first.statusCode());
+    assertEquals("private, no-cache", first.headers().firstValue("Cache-Control").orElseThrow());
+    String etag = first.headers().firstValue("ETag").orElseThrow();
+    var request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + path))
+        .header("If-None-Match", etag).GET().build();
+    var cached = client.send(request, HttpResponse.BodyHandlers.ofString());
+    assertEquals(304, cached.statusCode());
+    assertEquals("", cached.body());
+    var changed = client.send(HttpRequest.newBuilder(request.uri())
+        .header("If-None-Match", "\"other\"").GET().build(), HttpResponse.BodyHandlers.ofString());
+    assertEquals(200, changed.statusCode());
+    as(a);
+    app.deleteNote(a, n);
+    var revoked = client.send(request, HttpResponse.BodyHandlers.ofString());
+    assertEquals(404, revoked.statusCode());
+    assertTrue(revoked.headers().firstValue("Cache-Control").orElse("").contains("no-store"));
+    // This would block if the 304 path leaked the storage read lock.
+    assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
+      as(a);
+      try { app.deleteFile(a, Long.parseLong(file.id())); }
+      finally { SecurityContextHolder.clearContext(); }
+    });
+    assertEquals(404, client.send(request, HttpResponse.BodyHandlers.ofString()).statusCode());
+    assertTrue(get(client, "/").headers().firstValue("Cache-Control").orElse("").contains("no-store"));
+    assertTrue(get(client, "/js/app.js").headers().firstValue("Cache-Control").orElse("").contains("no-store"));
+  }
+
+  @Test
+  @Order(2)
   void imagesOwnershipVersionsReferencesAndCleanup() throws Exception {
     var file = upload(a);
     String fid = file.id();

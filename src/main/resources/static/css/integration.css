@@ -798,3 +798,14 @@ h3 {
     width: 100%;
   }
 }
+
+.gallery-status {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .92);
+  color: #333;
+}
+.gallery-status:empty { display: none; }
